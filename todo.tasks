@@ -1,0 +1,18 @@
+Rendering:
+    ☐ Gerar imagem do drone
+    ☐ Função que atualiza imagem a cada movimento
+    ☐ Modificar o código para exibir o environment
+    por meio da função render
+
+    Pensar se vale a pena converter o código para Pygame
+
+TF-Agents Compatibility:
+    ☐ time_step_spec
+        - Reward
+        - Observation
+    ☐ action_spec
+    ☐ step return format
+
+Alt+d - complete task
+Alt+c - cancel task
+@ tag - makes a tag
