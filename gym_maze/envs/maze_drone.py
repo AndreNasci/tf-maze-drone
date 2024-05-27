@@ -5,7 +5,7 @@ from .src.maze_viz import Visualizer
 class MazeDrone:
     
     def __init__(self, height=10, width=10):
-        print('make environment')
+        #print('make environment')
 
         """
         The following dictionary maps abstract actions from `self.action_space` to 
@@ -31,6 +31,8 @@ class MazeDrone:
         self.destroyed = False
         self.reached_target = False
 
+        self._human_render = False
+
         # Plotar imagem do labirinto
         #self.view()
 
@@ -43,20 +45,20 @@ class MazeDrone:
         # Concatena com distância para o target
         observation = walls + [self._get_target_distance()]
         
-        print(" B0   R1   T2   L3")
-        print(observation)
+        if self._human_render: print(" B0   R1   T2   L3")
+        if self._human_render: print(observation)
         
         return np.array(observation, dtype=np.float32)
 
     def action(self, action):
         
-        print('performs action:')
+        if self._human_render: print('performs action:')
         if not self._crashed(action):
             self._drone += self._action_to_direction[action]
 
         if self._achieved_target():
-            print("Chegou no objetivo.")
-        print(self._drone)
+            if self._human_render: print("Chegou no objetivo.")
+        if self._human_render: print(self._drone)
 
 
     def evaluate(self, obs):
@@ -85,7 +87,7 @@ class MazeDrone:
         # Se existe uma parede na direção do movimento = crash
         if walls[action]:
             self.destroyed = True
-            print("Atingiu uma parede.")
+            if self._human_render: print("Atingiu uma parede.")
             return True
         
         
@@ -98,7 +100,7 @@ class MazeDrone:
             True: If the drone's position matches the target position.
             False: If the drone's position doesn't match the target's.
         """
-        print(self._drone, self.maze.exit_coor)
+        if self._human_render: print(self._drone, self.maze.exit_coor)
         if np.array_equal(self._drone, np.array(self.maze.exit_coor)):
             self.reached_target = True
             return True

@@ -7,12 +7,32 @@ Rendering:
     Pensar se vale a pena converter o código para Pygame
 
 TF-Agents Compatibility:
-    ☐ time_step_spec
-        - Reward
-        - Observation
-    ☐ action_spec
-    ☐ step return format
+    ✔ time_step_spec @done (5/27/2024, 4:01:18 PM)
+    ✔ action_spec @done (5/27/2024, 4:01:24 PM)
+    ✔ step return format @done (5/27/2024, 4:01:26 PM)
+
+Entender:
+    ☐ Loss
+    ☐ Average Return
+    ☐ Criação do agente e configurações da rede neural
+    ☐ Metrics and evaluation
+    ☐ DynamicStepDriver (collect_steps_per_iteration)
+    ☐ agent.train_step_counter
+
+
+Testes:
+    ☐ Remover métodos action_spec e observation_spec 
+    e ver se ainda funciona
+
+
 
 Alt+d - complete task
 Alt+c - cancel task
 @ tag - makes a tag
+
+
+avg _return calcular a média dos rewards
+como não tem um máximo que o modelo sempre atinge(depende
+da distância), talvez seja necessário rever a política de 
+reward para ser possível avaliar melhor o desempenho do
+modelo
