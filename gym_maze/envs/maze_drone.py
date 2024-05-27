@@ -33,6 +33,8 @@ class MazeDrone:
 
         self._human_render = False
 
+        self._step_counter = 0
+        self._step_limit = 100
         # Plotar imagem do labirinto
         #self.view()
 
@@ -52,19 +54,27 @@ class MazeDrone:
 
     def action(self, action):
         
-        if self._human_render: print('performs action:')
+        if self._human_render: print('performs action:', action)
         if not self._crashed(action):
             self._drone += self._action_to_direction[action]
 
         if self._achieved_target():
             if self._human_render: print("Chegou no objetivo.")
-        if self._human_render: print(self._drone)
 
+        self._step_counter += 1
+        
+        # Limita steps 
+        if self._step_counter >= self._step_limit:
+            if self._human_render: print("Número máximo de steps atingido.")
+            self._is_done = True
 
+        
+
+    # Definir uma política de recompensas eficiente
     def evaluate(self, obs):
         distance = obs[-1]
 
-        if self.destroyed:
+        if self.destroyed or self._step_counter >= self._step_limit:
             return -500.
         
         if self.reached_target:
@@ -80,7 +90,7 @@ class MazeDrone:
 
     def view(self):
         vis = Visualizer(self.maze, 1, "")
-        vis.show_maze()
+        return vis.show_maze(self._drone[0], self._drone[1], self._human_render)
 
     def _crashed(self, action):
         walls = self._get_walls()

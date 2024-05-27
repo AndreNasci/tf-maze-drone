@@ -2,6 +2,8 @@ import matplotlib
 #matplotlib.use('QtAgg')  # Or 'QtAgg' depending on your preference
 import matplotlib.pyplot as plt
 import logging
+from matplotlib.patches import Rectangle
+import numpy as np
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -38,7 +40,7 @@ class Visualizer(object):
         """
         self.media_filename = filename
 
-    def show_maze(self):
+    def show_maze(self, drone_lin, drone_col, human_render):
         """Displays a plot of the maze without the solution path"""
 
         # Create the plot figure and style the axes
@@ -47,12 +49,25 @@ class Visualizer(object):
         # Plot the walls on the figure
         self.plot_walls()
 
+        # Plot the drone 
+        self.plot_drone(drone_lin, drone_col)
+
         # Display the plot to the user
-        plt.show()
+        if (human_render):
+            plt.show()
+        else:
+            plt.draw()
+            # Get the canvas as a NumPy array
+            canvas = np.array(fig.canvas.renderer.buffer_rgba())
+            
 
         # Handle any potential saving
         if self.media_filename:
             fig.savefig("{}{}.png".format(self.media_filename, "_generation"), frameon=None)
+
+        plt.close(fig)
+
+        return canvas
 
     def plot_walls(self):
         """ Plots the walls of a maze. This is used when generating the maze image"""
@@ -74,6 +89,29 @@ class Visualizer(object):
                 if self.maze.initial_grid[i][j].walls["left"]:
                     self.ax.plot([j*self.cell_size, j*self.cell_size],
                                  [(i+1)*self.cell_size, i*self.cell_size], color="k")
+                    
+    def plot_drone(self, drone_lin, drone_col):
+        
+        # Drone parameters 
+        side_length = self.cell_size * 0.6
+        center_y = drone_lin * self.cell_size + self.cell_size / 2.0
+        center_x = drone_col * self.cell_size + self.cell_size / 2.0
+
+        # Calculate corner coordinates (for the Rectangle)
+        bottom_left_x = center_x - side_length / 2
+        bottom_left_y = center_y - side_length / 2
+
+        # Create the square (as a Rectangle)
+        square = Rectangle((bottom_left_x, bottom_left_y), side_length, side_length)
+
+        # Add the square to the axes
+        self.ax.add_patch(square)
+
+
+
+
+
+
 
     def configure_plot(self):
         """Sets the initial properties of the maze plot. Also creates the plot and axes"""

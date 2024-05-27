@@ -1,8 +1,7 @@
 Rendering:
-    ☐ Gerar imagem do drone
-    ☐ Função que atualiza imagem a cada movimento
-    ☐ Modificar o código para exibir o environment
-    por meio da função render
+    ✔ Gerar imagem do drone @done (5/27/2024, 6:22:40 PM)
+    ✔ Função que atualiza imagem a cada movimento @done (5/27/2024, 6:22:25 PM)
+    ✔ Modificar o código para exibir o environment por meio da função render @done (5/27/2024, 6:22:33 PM)
 
     Pensar se vale a pena converter o código para Pygame
 
@@ -25,6 +24,8 @@ Testes:
     e ver se ainda funciona
 
 
+Features:
+    ☐ Add a step limit
 
 Alt+d - complete task
 Alt+c - cancel task

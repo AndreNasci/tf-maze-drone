@@ -27,23 +27,6 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # References for human-rendering
         self.window = None
         self.clock = None
-
-        # Start environment condidions (maze, drone position, timer)
-
-        self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), 
-            dtype=np.int32, 
-            minimum=0, 
-            maximum=3, 
-            name='action')
-        self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(5,), 
-            dtype=np.float32, 
-            minimum=[0., 0., 0., 0., 0.],
-            maximum=[1., 1., 1., 1., 20.],
-            name='observation')
-        # self._state = 0
-        # self._episode_ended = False 
         
 
     # Resets the game, returns the first observation data from the game
@@ -66,8 +49,9 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         else:
             return obs, {}
 
-    
 
+    # Where the action will be performed
+    # Reward and and state are calculated and returned
     def step(self, action):
         # Moves the drone
         self.maze_drone.action(action)
@@ -85,69 +69,8 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         # Return step information
         return obs, reward, done, {}
-    
-    
-    
-        # """Apply action and return new time_step."""
-        # if self._current_time_step is None:
-        #     return self.reset()
-        # self._current_time_step = self._step(action)
-        
-        # return self._current_time_step
-    
-
-    # def current_time_step(self):
-    #     return self._current_time_step
-
-        
-    # def time_step_spec(self):
-    #     """Return time_step_spec."""
-    #     pass
-    
-    def observation_spec(self):
-        """Return observation_spec."""
-        return self._observation_spec
-
-    def action_spec(self):
-        """Return action_spec."""
-        return self._action_spec
-
-    # def _reset(self):
-    #     """
-    #     It must return a tuple of the form '(obs, info)',
-    #     where `obs` is a observation and `info` is a dictionary 
-    #     containing additional information
-    #     """
-
-    #     del self.maze_drone
-    #     self.maze_drone = MazeDrone()
-    #     obs = self.maze_drone.observe()
-
-    #     return (obs, {})
-
-
-    # Where the action will be performed
-    # Reward and and state are calculated and returned
-    # def _step(self, action):
-        
-        # # Moves the drone
-        # self.maze_drone.action(action)
-        
-        # # Gets the environment state
-        # obs = self.maze_drone.observe()
-        
-        # # Calculate reward
-        # reward = self.maze_drone.evaluate(obs)
-        
-        # # Check if the maze is done
-        # done = self.maze_drone.is_done
-        
-        # truncated = np.bool_(False)
-
-        # # Return step information
-        # return obs, reward, done, {}
 
 
     # Render and show the game
     def render(self, mode="human", **kwargs):
-        self.maze_drone.view()
+        return self.maze_drone.view()
