@@ -10,22 +10,33 @@ TF-Agents Compatibility:
     ✔ action_spec @done (5/27/2024, 4:01:24 PM)
     ✔ step return format @done (5/27/2024, 4:01:26 PM)
 
+To do:
+    ☐ Tornar tamanho do maze variável 
+    ☐ Limpar código desnecessário
+    ☐ Comparar estruturas das redes neurais usadas nos diferentes tutoriais
+
 Entender:
     ☐ Loss
-    ☐ Average Return
+    ✔ Average Return @done (5/29/2024, 4:25:24 PM)
     ☐ Criação do agente e configurações da rede neural
     ☐ Metrics and evaluation
     ☐ DynamicStepDriver (collect_steps_per_iteration)
     ☐ agent.train_step_counter
-
+    ☐ Construção da rede neural, parâmetros
 
 Testes:
-    ☐ Remover métodos action_spec e observation_spec 
-    e ver se ainda funciona
-
-
+    ✔ Remover métodos action_spec e observation_spec e ver se ainda funciona @done (5/28/2024, 5:48:56 PM)
+    ☐ Testar REINFORCE ou PPO
+    ☐ Grafo como entrada para Rede Neural? (SLAM)
+    ✘ Reverb @cancelled (5/29/2024, 4:25:36 PM)
+    ☐ Alterar a função loss
+    ☐ Testar PyDriver para coleta de mais métricas
+    
 Features:
-    ☐ Add a step limit
+    ✔ Add a step limit @done (5/28/2024, 5:48:29 PM)
+    ✘ Change buffer @cancelled (5/29/2024, 4:21:57 PM)
+    
+    
 
 Alt+d - complete task
 Alt+c - cancel task
@@ -37,3 +48,21 @@ como não tem um máximo que o modelo sempre atinge(depende
 da distância), talvez seja necessário rever a política de 
 reward para ser possível avaliar melhor o desempenho do
 modelo
+
+Agents: ReinforceAgent, DQNAgent
+
+Metrics:
+    - TensorBoard: average episode length **
+    - Talvez passar episode length via {info}, no retorno de step
+    coletar com algum observer
+
+afinal ele treina a cada coleta?
+só faz um sampling de amostras diferentes? 
+
+Possible issues:
+size of buffer
+learning rate (adam)
+reward policy
+maze is too big and complex (go step by step)
+it may need more wins to learn the correlation with distance
+

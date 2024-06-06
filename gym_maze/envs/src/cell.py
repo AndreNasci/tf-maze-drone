@@ -81,13 +81,13 @@ class Cell(object):
             col_limit:
         """
 
-        if self.row == 0:
-            self.walls["top"] = False
-        elif self.row == row_limit:
-            self.walls["bottom"] = False
-        elif self.col == 0:
-            self.walls["left"] = False
-        elif self.col == col_limit:
-            self.walls["right"] = False
+        # if self.row == 0:
+        #     self.walls["top"] = False
+        # elif self.row == row_limit:
+        #     self.walls["bottom"] = False
+        # elif self.col == 0:
+        #     self.walls["left"] = False
+        # elif self.col == col_limit:
+        #     self.walls["right"] = False
 
         self.is_entry_exit = entry_exit

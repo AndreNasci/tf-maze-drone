@@ -1,0 +1,21 @@
+Registro das tasks completadas:
+
+06/06:
+    Hipótese: o desafio está muito complexo. O drone não
+    está conseguindo chegar ao fim do labirinto vezes o
+    suficiente para aprender com isso.
+    ✔ Tornar tamanho do maze variável @done (6/6/2024, 11:10:40 AM)
+
+    ✔ Testar treinamento com maze 5x5 @done (6/6/2024, 4:48:05 PM)
+    ☐ Limpar código
+    ✔ Melhorar readme e página github @done (6/6/2024, 11:58:43 AM)
+    ✔ Pesquisar licença MIT @done (6/6/2024, 11:33:04 AM)
+    ✔ Citar criador do gerador de labirintos @done (6/6/2024, 11:58:48 AM)
+    ☐ Criar notebook de treinamento, com opção de continuar treinamento
+    ☐ Traduzir comentários para o inglês
+
+    Descobri uma falha na minha função is_stuck, que estava fornecendo 
+    recompensas de forma errada.
+    ✔ Corrigir função is_stuck() @done (6/6/2024, 4:47:08 PM)
+    
+    ☐ Checar métrica "Avg of Steps/Episode"

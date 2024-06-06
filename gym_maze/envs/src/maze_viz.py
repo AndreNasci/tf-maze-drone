@@ -1,5 +1,4 @@
 import matplotlib
-#matplotlib.use('QtAgg')  # Or 'QtAgg' depending on your preference
 import matplotlib.pyplot as plt
 import logging
 from matplotlib.patches import Rectangle
@@ -55,6 +54,7 @@ class Visualizer(object):
         # Display the plot to the user
         if (human_render):
             plt.show()
+            return None
         else:
             plt.draw()
             # Get the canvas as a NumPy array
@@ -106,11 +106,6 @@ class Visualizer(object):
 
         # Add the square to the axes
         self.ax.add_patch(square)
-
-
-
-
-
 
 
     def configure_plot(self):

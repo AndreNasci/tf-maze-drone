@@ -11,7 +11,12 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, render_mode=None):
-        self.maze_drone = MazeDrone()
+
+        # This value defines the size of the maze
+        self._maze_size = 5
+
+        # Creates the maze 
+        self.maze_drone = MazeDrone(self._maze_size, self._maze_size)
         
         # Justifying action and observation space
         # Actions: north, east, south, west
@@ -24,25 +29,20 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        # References for human-rendering
-        self.window = None
-        self.clock = None
-        
 
-    # Resets the game, returns the first observation data from the game
-    def reset(        
-        self,
-        *,
-        seed: Optional[int] = None,
-        return_info: bool = False,
-        options: Optional[dict] = None,
-    ):
+    
+    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None,):
+        """ Resets the environment. Creates a new instance of MazeDrone and
+        returns the first environment state. 
+
+        Return:
+            The first observation data from the environment.
+        """ 
         super().reset(seed=seed)
 
         del self.maze_drone
-        self.maze_drone = MazeDrone()
+        self.maze_drone = MazeDrone(self._maze_size, self._maze_size)
         obs = self.maze_drone.observe()
-
 
         if not return_info:
             return obs
@@ -50,9 +50,20 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             return obs, {}
 
 
-    # Where the action will be performed
-    # Reward and and state are calculated and returned
+    
     def step(self, action):
+        """ This function performs the action received, obtains a new 
+        observation of the environment state, calculates the reward and checks
+        if the episode is done.
+
+        Return:
+            obs: observation of the environment, i.e, four booleans indicating 
+                the presence of walls around the drone's actual position and 
+                a float value representing the distance to the target.
+            reward: the amount of reward earned from that action. 
+            done: true if the episode is completed, false otherwise. 
+            {}: a dictionary available for additional info. 
+        """
         # Moves the drone
         self.maze_drone.action(action)
         
@@ -72,5 +83,12 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
 
     # Render and show the game
-    def render(self, mode="human", **kwargs):
-        return self.maze_drone.view()
+    def render(self, mode="rgb_array", **kwargs):
+        """ This function renders and shows the actual state of the environment,
+        when in human mode. Otherwise, it generates and returns the canva with 
+        the content.
+        
+        Return:
+            A matplotlib canva, to be plotted. 
+        """
+        return self.maze_drone.view(mode)
