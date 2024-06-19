@@ -3,7 +3,7 @@ Rendering:
     ✔ Função que atualiza imagem a cada movimento @done (5/27/2024, 6:22:25 PM)
     ✔ Modificar o código para exibir o environment por meio da função render @done (5/27/2024, 6:22:33 PM)
 
-    Pensar se vale a pena converter o código para Pygame
+    ✔ Pensar se vale a pena converter o código para Pygame @done (6/18/2024, 4:56:32 PM)
 
 TF-Agents Compatibility:
     ✔ time_step_spec @done (5/27/2024, 4:01:18 PM)
@@ -11,7 +11,7 @@ TF-Agents Compatibility:
     ✔ step return format @done (5/27/2024, 4:01:26 PM)
 
 To do:
-    ☐ Tornar tamanho do maze variável 
+    ✔ Tornar tamanho do maze variável @done (6/18/2024, 4:56:35 PM)
     ☐ Limpar código desnecessário
     ☐ Comparar estruturas das redes neurais usadas nos diferentes tutoriais
 

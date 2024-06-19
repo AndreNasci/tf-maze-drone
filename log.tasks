@@ -19,3 +19,34 @@ Registro das tasks completadas:
     ✔ Corrigir função is_stuck() @done (6/6/2024, 4:47:08 PM)
     
     ☐ Checar métrica "Avg of Steps/Episode"
+
+10/06:
+    Hipótese:
+        É possível que, no fim, o  algoritmo aprenda o algoritmo de 
+        geração de labirintos
+
+14/06:
+    ✔ Aprender a criar novos observers @done (6/14/2024, 11:42:34 AM)
+    ☐ Criar observer que verifica quantiadde de movimentos contra parede
+
+    Insights Pokemon Video:
+        - 
+
+    ☐ Entender melhor processo de treinamento
+        - Depois de quantos steps / episodes o modelo é treinado?
+        - Com quais dados é treinado?
+        - O quanto isso influencia?
+
+    ☐ Mudar a cor do drone quando ele atingir a parede
+    ☐ Tornar PATH independente da máquina
+
+
+    criar uma função que roda o treinamento com base em alguns parâmetros e retorna apenas os resultados
+
+
+        testar outros formatos de redes neurais, ver como elas se comportam
+        particionar o treinamento em fases
+            passar environment como listas 
+            criar uma classe treinamento - instância possui atributos que dizem quais environments e quando eles devem ser acionados
+            talvez criar um treinamnto inteligente (callback functions que dizem quando entrar o novo treinamento ou se não está convergindo)
+            será que o próprio tf-agents não faz isso sozinho?

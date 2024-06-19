@@ -13,7 +13,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     def __init__(self, render_mode=None):
 
         # This value defines the size of the maze
-        self._maze_size = 5
+        self._maze_size = 3
 
         # Creates the maze 
         self.maze_drone = MazeDrone(self._maze_size, self._maze_size)
@@ -79,7 +79,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         truncated = np.bool_(False)
 
         # Return step information
-        return obs, reward, done, {}
+        return obs, reward, done, {'step' : self.maze_drone._step_counter}
 
 
     # Render and show the game

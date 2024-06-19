@@ -35,6 +35,8 @@ class MazeDrone:
 
         # Drone step counter in that episode
         self._step_counter = 0
+        # Drone crash counter in that episode
+        self._crash_counter = 0
         # Step limit for an episode
         self._step_limit = 50
         # Distance between the drone and target in the last state
@@ -68,6 +70,7 @@ class MazeDrone:
         """
         if self._human_render: print('performs action:', action)
         if not self._crashed(action):
+            self._crash_counter += 1
             self._drone += self._action_to_direction[action]
 
         if self._achieved_target():
@@ -104,21 +107,21 @@ class MazeDrone:
         # If the drone crashed into the wall
         if self._destroyed:
             self._destroyed = False
-            return 0.
+            return -51.
 
         # If the drone is stuck in a position (flickering)
         if self._check_if_stuck():
-            return -1.
+            return -50.
         
         # If the drone reached the target
         if self._reached_target:
-            return 100.
+            return 300.
         
         # Standard movement 
         # reward = self._last_distance - distance 
         # self._last_distance = distance
         # return reward
-        return 10.
+        return -1.
 
     @property
     def is_done(self):
