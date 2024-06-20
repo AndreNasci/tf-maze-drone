@@ -19,14 +19,14 @@ from tf_agents.networks import sequential
 from tf_agents.specs import tensor_spec
 from tf_agents.utils import common
 
+
+
 # Define a helper function to create Dense layers configured with the right
 # activation and kernel initializer.
 def dense_layer(num_units):
     return tf.keras.layers.Dense(
         num_units,
-        activation=tf.keras.activations.relu,
-        kernel_initializer=tf.keras.initializers.VarianceScaling(
-        scale=2.0, mode='fan_in', distribution='truncated_normal'))
+        activation=tf.keras.activations.relu)
 
 
 def build_agent(fc_layer_params, env, learning_rate, train_env):
@@ -38,21 +38,29 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
     
     q_values_layer = tf.keras.layers.Dense(
         num_actions,
-        activation=None,
-        kernel_initializer=tf.keras.initializers.RandomUniform(
-        minval=-0.03, maxval=0.03),
-        bias_initializer=tf.keras.initializers.Constant(-0.2))
+        activation=None)
+    
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     train_step_counter = tf.Variable(0)
+
+
+
+
+
+
+
+
+
     
     agent = dqn_agent.DqnAgent(
         train_env.time_step_spec(),
         train_env.action_spec(),
         q_network=q_net,
         optimizer=optimizer,
+        epsilon_greedy=0.5,
         td_errors_loss_fn=common.element_wise_squared_loss,
         train_step_counter=train_step_counter)
     return agent  
@@ -95,7 +103,7 @@ class MyMetric(py_metric.PyMetric):
         self._count = 0
 
     def call(self, trajectory):
-        if trajectory.reward.numpy()[0] == -51.:
+        if trajectory.reward.numpy()[0] == -6.:
             self._count += 1
 
     def result(self):
@@ -128,7 +136,7 @@ def build_buffer():
 import matplotlib.pyplot as plt
 import pandas as pd
 
-def plot_moving_avg(y_name, y_data, period=10, top_lim=0, bot_lim=0):
+def plot_moving_avg(y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0):
     y_axis_df = pd.DataFrame({y_name: y_data})
     
     y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
@@ -141,15 +149,18 @@ def plot_moving_avg(y_name, y_data, period=10, top_lim=0, bot_lim=0):
     plt.title(f'Moving average - {y_name}')
     plt.legend()
     plt.grid(axis='y')
-    #plt.ylim(top=100, bottom=-50)
+    if ylim:
+        plt.ylim(top=top_lim, bottom=bot_lim)
     plt.show()
 
-def plot_metric_per_iteration(num_iterations, interval, metric, y_label):
+def plot_metric_per_iteration(num_iterations, interval, metric, y_label, ylim=False, top_lim=0, bot_lim=0):
     iterations = range(0, num_iterations, interval)
     plt.plot(iterations, metric)
     plt.ylabel(y_label)
     plt.xlabel('Iterations')
     plt.grid(axis='y')
+    if ylim:
+        plt.ylim(top=top_lim, bottom=bot_lim)
     plt.show()
 
 

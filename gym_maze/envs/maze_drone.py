@@ -13,10 +13,10 @@ class MazeDrone:
         I.e. 0 corresponds to "south", 1 to "east" etc.
         """
         self._action_to_direction = {
-            0: np.array([-1, 0]),   # south
-            1: np.array([0, 1]),    # east
-            2: np.array([1, 0]),    # north
-            3: np.array([0, -1]),   # weast
+            3: np.array([-1, 0]),   # left  / weast / esquerda
+            2: np.array([0, 1]),    # up    / north / cima  
+            1: np.array([1, 0]),    # right / east  / direita
+            0: np.array([0, -1]),   # down  / weast / baixo
         }
 
         # Create a new maze
@@ -57,10 +57,11 @@ class MazeDrone:
         walls = self._get_walls()
         
         # Concatena com distância para o target
-        observation = walls + [self._get_target_distance()]
+        r, theta = self._get_polar_distance()
+        observation = walls + [r, theta]
         
         # Info for human mode
-        if self._human_render: print(" B0   R1   T2   L3")
+        if self._human_render: print(" D0   R1   U2   L3")
         if self._human_render: print(observation)
         
         return np.array(observation, dtype=np.float32)
@@ -107,15 +108,15 @@ class MazeDrone:
         # If the drone crashed into the wall
         if self._destroyed:
             self._destroyed = False
-            return -51.
+            return -6.
 
         # If the drone is stuck in a position (flickering)
         if self._check_if_stuck():
-            return -50.
+            return -5.
         
         # If the drone reached the target
         if self._reached_target:
-            return 300.
+            return 10.
         
         # Standard movement 
         # reward = self._last_distance - distance 
@@ -144,7 +145,7 @@ class MazeDrone:
             self._human_render = True
             _ = self.observe()
 
-        return vis.show_maze(self._drone[0], self._drone[1], self._human_render)
+        return vis.show_maze(self._drone[1], self._drone[0], self._human_render)
 
 
     def _crashed(self, action):
@@ -185,29 +186,36 @@ class MazeDrone:
         """ This function builds a list, whose values represent whether or
         not there is a wall on a certain side of the drone, given its position. 
         Each value in the list acts as a boolean to inform the presence (1.0) or not 
-        (0.0) of a wall. The sequence of walls is: [Bottom, Right, Top, Right]
+        (0.0) of a wall. The sequence of walls is: [Bottom, Right, Top, Left]
 
         Return:
             A list of float in which each value represents the presence (with 1.)
-            or not (with 0.) of a wall around [Bottom, Right, Top, Right] the drone. 
+            or not (with 0.) of a wall around [Bottom, Right, Top, Left] the drone. 
         """
         
         # Drone's current position
-        lin = self._drone[0]
-        col = self._drone[1]
+        lin = self._drone[1]
+        col = self._drone[0]
         
         return [1. if wall else 0. for wall in self.maze.initial_grid[lin][col].walls.values()]
     
 
-    def _get_target_distance(self):
-        """ Function that calculates the euclidian distance between the
+    def _get_polar_distance(self):
+        """ Function that calculates the polar distance between the
         drone position and target position.
 
         Return:
-            A float value representing the distance between the drone
-            and the target.
+            Two float values representing the distance and the angle (in radians)
+            between the drone and the target.
         """ 
-        return np.linalg.norm(np.array(self._drone) - np.array(self.maze.exit_coor))
+        # Arrays with x and y coordinates of each point
+        x = self.maze.exit_coor[0] - self._drone[0]
+        y = self.maze.exit_coor[1] - self._drone[1]
+
+        r = np.hypot(x, y)      # Calculate radial distance (magnitude)
+        theta = np.arctan2(y, x)  # Calculate angle in radians
+        return r, theta
+    
 
     def _check_if_stuck(self):
         """

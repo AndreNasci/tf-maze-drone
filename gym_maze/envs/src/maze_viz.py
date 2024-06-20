@@ -74,9 +74,9 @@ class Visualizer(object):
         for i in range(self.maze.num_rows):
             for j in range(self.maze.num_cols):
                 if self.maze.initial_grid[i][j].is_entry_exit == "entry":
-                    self.ax.text(j*self.cell_size, i*self.cell_size, "START", fontsize=7, weight="bold")
+                    self.ax.text(i*self.cell_size, j*self.cell_size, "START", fontsize=7, weight="bold")
                 elif self.maze.initial_grid[i][j].is_entry_exit == "exit":
-                    self.ax.text(j*self.cell_size, i*self.cell_size, "END", fontsize=7, weight="bold")
+                    self.ax.text(i*self.cell_size, j*self.cell_size, "END", fontsize=7, weight="bold")
                 if self.maze.initial_grid[i][j].walls["top"]:
                     self.ax.plot([j*self.cell_size, (j+1)*self.cell_size],
                                  [i*self.cell_size, i*self.cell_size], color="k")

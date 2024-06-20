@@ -30,7 +30,7 @@ Testes:
     ☐ Grafo como entrada para Rede Neural? (SLAM)
     ✘ Reverb @cancelled (5/29/2024, 4:25:36 PM)
     ☐ Alterar a função loss
-    ☐ Testar PyDriver para coleta de mais métricas
+    ✔ Testar PyDriver para coleta de mais métricas @done (6/19/2024, 2:59:37 PM)
     
 Features:
     ✔ Add a step limit @done (5/28/2024, 5:48:29 PM)

@@ -22,9 +22,10 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # Actions: north, east, south, west
         self.action_space = spaces.Discrete(4)
         # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target
-        low = np.array([0., 0., 0., 0., 0.], dtype=np.float32)
-        high = np.array([1., 1., 1., 1., 20.], dtype=np.float32)
+        low = np.array([0., 0., 0., 0., 0., -3.15], dtype=np.float32)
+        high = np.array([1., 1., 1., 1., 20., 3.15], dtype=np.float32)
         self.observation_space = spaces.Box(low=low, high=high)
+
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode

@@ -27,7 +27,7 @@ Registro das tasks completadas:
 
 14/06:
     ✔ Aprender a criar novos observers @done (6/14/2024, 11:42:34 AM)
-    ☐ Criar observer que verifica quantiadde de movimentos contra parede
+    ✔ Criar observer que verifica quantiadde de movimentos contra parede @done (6/19/2024, 3:00:02 PM)
 
     Insights Pokemon Video:
         - 
@@ -50,3 +50,27 @@ Registro das tasks completadas:
             criar uma classe treinamento - instância possui atributos que dizem quais environments e quando eles devem ser acionados
             talvez criar um treinamnto inteligente (callback functions que dizem quando entrar o novo treinamento ou se não está convergindo)
             será que o próprio tf-agents não faz isso sozinho?
+
+19/06:
+    Maze sem paredes (aprender a perseguir o alvo)
+    Adicionar paredes
+
+    Como tornar o processo reproduzível?
+
+    O que eu espero no final?
+        Entendimento melhor de redes neurais
+            o que é melhor? O que exatamente eu pretendo aprender?
+        Projeto prático de IA (portfólio)
+
+        Exercitar aprender algo por minha conta e executar
+
+        Aprender sobre reinforcement learning
+        Aprender documentação
+        Exercitar versionamento
+        Me envolver com comunidades de ML
+        Projeto prático com Tensor Flow (portfólio)
+
+20/06:
+
+    branch para criar novos cenários de treinamento 
+    
