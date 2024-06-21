@@ -78,3 +78,5 @@ Registro das tasks completadas:
     remover my_metric do observer e inserir como um avaliador
     verificar se mode é o mesmo em train e eval
     verificar se muda após o  reset
+
+    salvar agente para deploy e testes
