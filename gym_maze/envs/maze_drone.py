@@ -5,7 +5,7 @@ from collections import deque
 
 class MazeDrone:
     
-    def __init__(self, height=10, width=10):
+    def __init__(self, height=10, width=10, mode=0):
         
         """
         The following dictionary maps abstract actions from `self.action_space` 
@@ -20,7 +20,10 @@ class MazeDrone:
         }
 
         # Create a new maze
-        self.maze = Maze(height, width, algorithm = "bin_tree")
+        if mode == 0:
+            self.maze = Maze(height, width, algorithm = "bin_tree")
+        elif mode == 1:
+            self.maze = Maze(height, width, algorithm = "empty")
 
         # Sets the drone's position to the start of the maze
         self._drone = self.maze.entry_coor

@@ -3,7 +3,7 @@ import random
 import math
 import time
 from .cell import Cell
-from .algorithm import depth_first_recursive_backtracker, binary_tree
+from .algorithm import depth_first_recursive_backtracker, binary_tree, empty_maze
 
 
 class Maze(object):
@@ -203,26 +203,29 @@ class Maze(object):
             depth_first_recursive_backtracker(self, start_coor)
         elif algorithm == "bin_tree":
             binary_tree(self, start_coor)
+        elif algorithm == 'empty':
+            empty_maze(self, start_coor)
 
     def _close_entry_exit(self):
         # Por algum motivo, a lógica de top e bottom estão invertidas 
         # em relação ao plot do maze, por isso foram invertidas aqui também
-        lin, col = self.entry_coor
-        if lin == 9:
-            self.initial_grid[lin][col].walls['bottom'] = True
-        if col == 9:
-            self.initial_grid[lin][col].walls['right'] = True
-        if lin == 0:
-            self.initial_grid[lin][col].walls['top'] = True
-        if col == 0:
-            self.initial_grid[lin][col].walls['left'] = True
+        pass
+        # lin, col = self.entry_coor
+        # if lin == 9:
+        #     self.initial_grid[lin][col].walls['bottom'] = True
+        # if col == 9:
+        #     self.initial_grid[lin][col].walls['right'] = True
+        # if lin == 0:
+        #     self.initial_grid[lin][col].walls['top'] = True
+        # if col == 0:
+        #     self.initial_grid[lin][col].walls['left'] = True
 
-        lin, col = self.exit_coor
-        if lin == 9:
-            self.initial_grid[lin][col].walls['bottom'] = True
-        if col == 9:
-            self.initial_grid[lin][col].walls['right'] = True
-        if lin == 0:
-            self.initial_grid[lin][col].walls['top'] = True
-        if col == 0:
-            self.initial_grid[lin][col].walls['left'] = True
+        # lin, col = self.exit_coor
+        # if lin == 9:
+        #     self.initial_grid[lin][col].walls['bottom'] = True
+        # if col == 9:
+        #     self.initial_grid[lin][col].walls['right'] = True
+        # if lin == 0:
+        #     self.initial_grid[lin][col].walls['top'] = True
+        # if col == 0:
+        #     self.initial_grid[lin][col].walls['left'] = True

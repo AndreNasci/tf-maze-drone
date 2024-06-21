@@ -73,4 +73,8 @@ Registro das tasks completadas:
 20/06:
 
     branch para criar novos cenários de treinamento 
-    
+    alguma forma de manter log dos experimentos 
+
+    remover my_metric do observer e inserir como um avaliador
+    verificar se mode é o mesmo em train e eval
+    verificar se muda após o  reset

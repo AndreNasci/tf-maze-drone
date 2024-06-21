@@ -3,7 +3,7 @@ import random
 import math
 
 # global variable to store list of all available algorithms
-algorithm_list = ["dfs_backtrack", "bin_tree"]
+algorithm_list = ["dfs_backtrack", "bin_tree", "empty"]
 
 def depth_first_recursive_backtracker( maze, start_coor ):
         k_curr, l_curr = start_coor             # Where to start generating
@@ -165,3 +165,25 @@ def binary_tree( maze, start_coor ):
 
     #print(f"Generating path for maze took {time.time() - begin_time}s.")
     maze.generation_path = path
+
+
+def empty_maze( maze, start_coor):
+
+    for i in range(0, maze.num_rows):
+        for j in range(0, maze.num_cols):
+            if j != 0: maze.initial_grid[i][j].walls['left'] = False
+            if j != maze.num_cols-1: maze.initial_grid[i][j].walls['right'] = False
+
+
+            if i != maze.num_rows-1: maze.initial_grid[i][j].walls['bottom'] = False
+            if i != 0: maze.initial_grid[i][j].walls['top'] = False
+                
+                
+            
+
+        
+
+    maze.grid[maze.entry_coor[0]][maze.entry_coor[1]].set_as_entry_exit("entry",
+        maze.num_rows-1, maze.num_cols-1)
+    maze.grid[maze.exit_coor[0]][maze.exit_coor[1]].set_as_entry_exit("exit",
+        maze.num_rows-1, maze.num_cols-1)

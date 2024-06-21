@@ -14,9 +14,10 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         # This value defines the size of the maze
         self._maze_size = 3
+        self._mode = 0
 
         # Creates the maze 
-        self.maze_drone = MazeDrone(self._maze_size, self._maze_size)
+        self.maze_drone = MazeDrone(self._maze_size, self._maze_size, self._mode)
         
         # Justifying action and observation space
         # Actions: north, east, south, west
@@ -42,7 +43,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
 
         del self.maze_drone
-        self.maze_drone = MazeDrone(self._maze_size, self._maze_size)
+        self.maze_drone = MazeDrone(self._maze_size, self._maze_size, self._mode)
         obs = self.maze_drone.observe()
 
         if not return_info:
@@ -93,3 +94,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             A matplotlib canva, to be plotted. 
         """
         return self.maze_drone.view(mode)
+    
+
+    def set_mode(self, mode):
+        self._mode = mode
