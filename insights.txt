@@ -1,0 +1,66 @@
+24/08
+Parece haver um caso em que ele ainda não consegue encontrar
+uma solução.
+Casos em que tem que retornar um quadrado. 
+
+Preciso padronizar a forma de registrar os resultados dos meus
+testes.
+
+Preciso gerar mais gráficos. Formas de medir o desempenho
+dos testes. (Criar uma planilha)
+
+Criar melhor visualização para o drone. 
+
+Considerar retornar para o Pygame e criar uma interface?
+Talvez pygame não seja a melhor opção, mas gostaria de algo gráfico para
+usar como interface. Uma aplicação completa.
+
+Mapping - SLAM
+vou precisar gerar uma estrutura de dados para isso
+
+verificar métricas que já estou usando:
+loss, média dos rewards, average episode length, average of episodes
+
+no texto eu posso usar uma sessão para explicar a forma como o TF-Agents 
+funciona: ciclo de coleta de dados, ciclo de avaliação, ciclo de 
+treinamento.
+
+entender melhor as interfaces de dados. Como obter dados de dentro do 
+treinamento. Como gerar métricas. ETC.
+
+gerar testes extensivos que coletem dados para verificar o efeito de 
+algumas modificações no conjunto de variáveis.
+e realizar esses testes em vários cenários: com e sem paredes. Com 
+mais ou menos informações. Usar esses dados no texto.
+
+Lembrar do método científico: problema > hipótese > validar hipótese.
+
+rever passos e problemas pelos quais passei e tentar encaixar isso de 
+alguma forma no texto.
+
+preciso rever as orientações sobre escrita científica que já me esqueci
+
+alguma função para apenas rodar o modelo treinado, verificar métricas 
+a partir disso
+
+visual impressiona. Talvez eu devesse investir nisso. gerar simulações
+mais visualmente bonitas.
+
+salvar agente treinado.
+
+filtrar arquivos. Tem muitos
+
+SOBRE ARQUIVOS ABERTOS:
+training copy 3: apenas um estágio, sem paredes
+training copy 4: dois estágios, os dois com paredes. Não funcionou muito
+bem. O primeiro estágio apresenta flickering. O segundo melhora os 
+resultados, mas ainda apresenta o mesmo comportamento.
+training copy 5: dois estágios, um com parede e o outro sem. Não sei o
+que mudei dessa tentativa para a próxima, mas esse apresenta flickering.
+O último aberto: training copy 6, parece ter o treinamento separado em
+estágios.
+
+preciso entender se houve diferenças entre os dois últimos (copy 5 e
+copy 6), a fim de entender se o processo é reproduzível. 
+
+
