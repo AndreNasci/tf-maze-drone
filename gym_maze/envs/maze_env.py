@@ -16,8 +16,16 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self._maze_size = 3
         self._mode = 0
 
+        # Default Rewards
+        self._rewards = {
+            'destroyed': -6.,
+            'stuck': - 5.,
+            'reached': 10.,
+            'standard': -1.
+        }
+
         # Creates the maze 
-        self.maze_drone = MazeDrone(self._maze_size, self._maze_size, self._mode)
+        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode)
         
         # Justifying action and observation space
         # Actions: north, east, south, west
@@ -31,6 +39,8 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
+        #print("Environment Created")
+
 
     
     def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None,):
@@ -42,8 +52,10 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         """ 
         super().reset(seed=seed)
 
+        #print("Reset Environment")
+
         del self.maze_drone
-        self.maze_drone = MazeDrone(self._maze_size, self._maze_size, self._mode)
+        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode)
         obs = self.maze_drone.observe()
 
         if not return_info:
@@ -98,3 +110,13 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def set_mode(self, mode):
         self._mode = mode
+
+    def update_rewards(self, destroyed, stuck, reached, standard):
+        self._rewards['destroyed'] = destroyed
+        self._rewards['stuck'] = stuck
+        self._rewards['reached'] = reached
+        self._rewards['standard'] = standard
+        print('Rewards Updated:', self._rewards)
+
+    def print_rewards(self):
+        print('Rewards:', self._rewards)

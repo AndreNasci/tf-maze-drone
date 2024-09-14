@@ -5,13 +5,16 @@ from collections import deque
 
 class MazeDrone:
     
-    def __init__(self, height=10, width=10, mode=0):
+    def __init__(self, rewards_env, height=10, width=10, mode=0):
         
         """
         The following dictionary maps abstract actions from `self.action_space` 
         to the direction the drone will move in if that action is taken.
         I.e. 0 corresponds to "south", 1 to "east" etc.
         """
+
+        #print("Create Drone")
+
         self._action_to_direction = {
             3: np.array([-1, 0]),   # left  / weast / esquerda
             2: np.array([0, 1]),    # up    / north / cima  
@@ -47,6 +50,15 @@ class MazeDrone:
 
         # Drone coordinate history
         self._history = deque([(1,2),(1,3),(1,4),(1,5)])
+
+
+        self._rewards = {
+            'destroyed': rewards_env['destroyed'],
+            'stuck': rewards_env['stuck'],
+            'reached': rewards_env['reached'],
+            'standard': rewards_env['standard']
+        }
+        #print('Drone rewards:', self._rewards)
 
     def observe(self):
         """
@@ -111,21 +123,21 @@ class MazeDrone:
         # If the drone crashed into the wall
         if self._destroyed:
             self._destroyed = False
-            return -6.
+            return self._rewards['destroyed']
 
         # If the drone is stuck in a position (flickering)
         if self._check_if_stuck():
-            return -5.
+            return self._rewards['stuck']
         
         # If the drone reached the target
         if self._reached_target:
-            return 10.
+            return self._rewards['reached']
         
         # Standard movement 
         # reward = self._last_distance - distance 
         # self._last_distance = distance
         # return reward
-        return -1.
+        return self._rewards['standard']
 
     @property
     def is_done(self):
@@ -232,3 +244,9 @@ class MazeDrone:
         return False    
 
         
+    def set_rewards(self, destroyed, stuck, reached, standard):
+        self._rewards['destroyed'] = destroyed
+        self._rewards['stuck'] = stuck
+        self._rewards['reached'] = reached
+        self._rewards['standard'] = standard
+         

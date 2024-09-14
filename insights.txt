@@ -64,3 +64,58 @@ preciso entender se houve diferenças entre os dois últimos (copy 5 e
 copy 6), a fim de entender se o processo é reproduzível. 
 
 
+06/09
+realizar diversos treinamentos. Verificar a média de episódios que leva 
+para o modelo convergir. Verificar se há algum desvio muito grande.
+
+Métricas, gráficos e log de resultados são importantes.
+
+
+Onde eu estou?
+Eu tenho um notebook que consegue treinar um agente para se movimentar
+em um labirinto de 3x3. O treinamento segue algumas etapas. Não sei
+dizer quantas das vezes o agente é bem sucedido em suas tentativas
+(faltam métricas), mas sei que ele falha algumas vezes.
+
+Tenho muitas ideias do que melhorar. (Preciso focar no essencial).
+
+Tenho um método que funciona. Ele precisa ser robusto.
+
+
+TESTAR ROBUSTEZ:
+Para isso é necessário:
+- Testes repetitivos 
+- Métricas
+
+Medir:
+Quantas vezes o drone atinge uma parede?
+Quantas vezes ele não é capaz de completar o labirinto?
+Qual a média de passos ele leva pra completar?
+loss (ele ainda está aprendendo algo?)
+Média de Reward por episódio
+
+Método:
+Rodar o treinamento 100 vezes com x episódios (e aumentar o número de
+episódios gradativamente).
+Verificar as métricas.
+Gerar um histórico, para aferir qual o número ótimo de episódios
+necessário para ensiar o agente aquela habilidade.
+
+
+09/09
+Verificar métricas usadas
+Padronizar forma de registrar resultados dos testes
+Entender melhor interface dos dados
+Gerar testes extensivos que coletem dados
+Método para aferir a robustez
+
+cenário do experimento:
+rodar 4 treinamentos sem paredes
+- somente com recompensa positiva
+- recompensa positiva e negativa, porém negativa menor do que positiva
+- recompensa positiva e negativa, de igual magnitude
+- recompensa positiva e negativa, porém negativa maior do que positiva 
+acompanhar loss junto
+
+fazer o teste de crash em ambiente jogável
+
