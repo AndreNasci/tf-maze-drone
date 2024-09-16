@@ -53,6 +53,8 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         super().reset(seed=seed)
 
         #print("Reset Environment")
+        #print('Rewards:', self._rewards)
+
 
         del self.maze_drone
         self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode)

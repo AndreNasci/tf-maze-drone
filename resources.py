@@ -96,14 +96,67 @@ def compute_avg_return(environment, policy, num_episodes=10):
     return avg_return.numpy()[0]
 
 
+def finish_counter(environment, policy, reached_end_reward, num_episodes=10):
+    finished_episodes = 0
+    for _ in range(num_episodes):
+
+        time_step = environment.reset()
+
+        while not time_step.is_last():
+            action_step = policy.action(time_step)
+            time_step = environment.step(action_step.action)
+        
+        if time_step.reward == reached_end_reward:
+            finished_episodes += 1
+
+    finished_percentage = finished_episodes / float(num_episodes)
+    return finished_percentage
+
+def compute_logs(environment, policy, rewards, num_episodes=10):
+    total_return = 0.0
+    finished_episodes = 0
+    crashes_counter = 0
+    stuck_counter = 0
+    step_counter = 0
+
+    for _ in range(num_episodes):
+
+        time_step = environment.reset()
+        episode_return = 0.0
+
+        while not time_step.is_last():
+            action_step = policy.action(time_step)
+            time_step = environment.step(action_step.action)
+            step_counter += 1
+            
+            if time_step.reward == rewards['destroyed']:
+                crashes_counter += 1
+            elif time_step.reward == rewards['stuck']:
+                stuck_counter += 1
+            episode_return += time_step.reward
+
+        total_return += episode_return
+
+        if time_step.reward == rewards['reached']:
+            finished_episodes += 1
+
+    avg_steps = step_counter / float(num_episodes)
+    avg_return = total_return / float(num_episodes)
+    finished_percentage = finished_episodes / float(num_episodes)
+    return avg_return.numpy()[0], finished_percentage, crashes_counter, stuck_counter, avg_steps
+
+
+
+# Crash and Stuch status counter 
 class MyMetric(py_metric.PyMetric):
 
-    def __init__(self, name="MyMetric"):
+    def __init__(self, reward, name="MyMetric"):
         super(MyMetric, self).__init__(name=name)
         self._count = 0
+        self._reward = reward
 
     def call(self, trajectory):
-        if trajectory.reward.numpy()[0] == -6.:
+        if trajectory.reward.numpy()[0] == self._reward:
             self._count += 1
 
     def result(self):
@@ -111,6 +164,10 @@ class MyMetric(py_metric.PyMetric):
     
     def reset(self):
         self._count = 0
+
+    
+
+    
 
 
 

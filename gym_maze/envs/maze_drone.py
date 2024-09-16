@@ -233,7 +233,12 @@ class MazeDrone:
     
 
     def _check_if_stuck(self):
-        """
+        """ Function that detects if the Drone is stuck by keeping a registry of the last 
+        four positions. 
+        
+        Return:
+            True if it's stuck, otherwise False.
+
         """
         
         _ = self._history.popleft()
