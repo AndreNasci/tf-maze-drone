@@ -119,3 +119,7 @@ acompanhar loss junto
 
 fazer o teste de crash em ambiente jogável
 
+21/09 
+Criar subplot que plote todos os gráficos na mesma linha. Facilitará
+a comparação de resultados. 
+

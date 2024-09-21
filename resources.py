@@ -1,3 +1,24 @@
+# BUILD AGENT
+import tensorflow as tf
+from tf_agents.agents.dqn import dqn_agent
+from tf_agents.networks import sequential
+from tf_agents.specs import tensor_spec
+from tf_agents.utils import common
+
+# METRICS AND EVALUATION
+from tf_agents.metrics import py_metric
+
+# CHARTS AND VISUALIZATION
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# VIDEO GENERATOR
+import base64
+import imageio
+import IPython
+
+
+
 
 """ BUILD AGENT
 
@@ -12,14 +33,6 @@
     with `num_actions` units to generate one q_value per available action as
     its output.
 """
-
-import tensorflow as tf
-from tf_agents.agents.dqn import dqn_agent
-from tf_agents.networks import sequential
-from tf_agents.specs import tensor_spec
-from tf_agents.utils import common
-
-
 
 # Define a helper function to create Dense layers configured with the right
 # activation and kernel initializer.
@@ -48,13 +61,6 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
 
 
 
-
-
-
-
-
-
-    
     agent = dqn_agent.DqnAgent(
         train_env.time_step_spec(),
         train_env.action_spec(),
@@ -77,7 +83,6 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
     See also the metrics module for standard implementations of different metrics.
     https://github.com/tensorflow/agents/tree/master/tf_agents/metrics
 """
-from tf_agents.metrics import py_metric
 
 def compute_avg_return(environment, policy, num_episodes=10):
     total_return = 0.0
@@ -165,11 +170,6 @@ class MyMetric(py_metric.PyMetric):
     def reset(self):
         self._count = 0
 
-    
-
-    
-
-
 
 
 """ REPLAY BUFFER
@@ -190,8 +190,6 @@ def build_buffer():
     steps/iterations. This function is made to plot this kind of metrics.
 """
 
-import matplotlib.pyplot as plt
-import pandas as pd
 
 def plot_moving_avg(y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0):
     y_axis_df = pd.DataFrame({y_name: y_data})
@@ -226,10 +224,6 @@ def plot_metric_per_iteration(num_iterations, interval, metric, y_label, ylim=Fa
 """ VIDEO GENERATOR
 """
 
-import base64
-import imageio
-import IPython
-
 
 def embed_mp4(filename):
     """Embeds an mp4 file in the notebook."""
@@ -255,3 +249,194 @@ def create_policy_eval_video(policy, filename, eval_env, eval_py_env, num_episod
                 video.append_data(eval_py_env.render())
     return embed_mp4(filename)
 
+
+""" TRAINING SESSION
+"""
+
+import pandas as pd
+from tf_agents.environments import suite_gym
+from tf_agents.environments import tf_py_environment
+from tf_agents.metrics import tf_metrics
+import sys
+
+sys.path.append('/home/naski/Documents/dev/maze_drone_v02')
+import gym_maze # Esta linha precisa estar após o PATH
+
+from tf_agents.drivers import dynamic_step_driver
+from tf_agents.replay_buffers import tf_uniform_replay_buffer
+
+class TrainingSession:
+    
+    def __init__(self, env_name, rewards, agent, collect_steps_per_iteration, 
+                 num_iterations, eval_interval, replay_buffer_max_length, num_eval_episodes):
+        
+        self._env_name = env_name
+        self._rewards = rewards
+        self._agent = agent
+        self._collect_steps_per_iteration = collect_steps_per_iteration
+        self._num_iterations = num_iterations
+        self._eval_interval = eval_interval
+        self._replay_buffer_max_length = replay_buffer_max_length
+        self._num_eval_episodes = num_eval_episodes
+
+    def reset(self):
+        del(self._env_name)
+        del(self._rewards) 
+        del(self._agent) 
+        del(self._collect_steps_per_iteration) 
+        del(self._num_iterations) 
+        del(self._eval_interval) 
+        del(self._replay_buffer_max_length) 
+        del(self._num_eval_episodes) 
+
+
+    def train(self, verbose=False):
+
+        # ENVIRONMENT
+        train_py_env = suite_gym.load(self._env_name)
+        eval_py_env = suite_gym.load(self._env_name)
+
+        train_py_env.update_rewards(self._rewards['destroyed'], self._rewards['stuck'], self._rewards['reached'], self._rewards['standard'])
+        eval_py_env.update_rewards(self._rewards['destroyed'], self._rewards['stuck'], self._rewards['reached'], self._rewards['standard'])
+
+        # Converts environments, originally in pure Python, to tensors (using a wrapper)
+        train_env = tf_py_environment.TFPyEnvironment(train_py_env)
+        eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
+
+        # POLICIES
+        # The main policy that is used for evaluation and deployment.
+        eval_policy = self._agent.policy
+        # A second policy that is used for data collection.
+        collect_policy = self._agent.collect_policy
+
+        # METRICS
+        crash_counter = MyMetric(self._rewards['destroyed'])
+
+        # REPLAY BUFFER
+        replay_buffer_capacity = self._replay_buffer_max_length
+
+        replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
+            self._agent.collect_data_spec,
+            batch_size=train_env.batch_size,
+            max_length=replay_buffer_capacity)
+
+        num_episodes = tf_metrics.NumberOfEpisodes()
+        env_steps = tf_metrics.EnvironmentSteps()
+
+        # Add an observer that adds to the replay buffer:
+        replay_observer = [replay_buffer.add_batch, num_episodes, env_steps, crash_counter]
+
+
+        # TRAINING THE AGENT 
+
+        # (Optional) Optimize by wrapping some of the code in a graph using TF function.
+        self._agent.train = common.function(self._agent.train)
+        # Reset the train step.
+        self._agent.train_step_counter.assign(0)
+
+        # Evaluate the agent's policy once before training.
+        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes)
+        returns = [eval_avg_return]
+        finished = [eval_finished_percentage]
+        crashed = [eval_crash_counter]
+        stucked = [eval_stuck_counter]
+        steped = [eval_steps]
+        step_log = [0]
+
+        # Reset the environment.
+        time_step = train_py_env.reset()
+        train_py_env.set_mode(1)
+        eval_py_env.set_mode(1)
+
+        # Create a driver to collect experience.
+        collect_driver = dynamic_step_driver.DynamicStepDriver(
+            train_env,
+            self._agent.collect_policy,
+            observers=replay_observer,
+            num_steps=self._collect_steps_per_iteration)
+        
+        # Code needed for dataset iterator
+        collect_op = dynamic_step_driver.DynamicStepDriver(
+        train_env,
+        self._agent.collect_policy,
+        observers=replay_observer,
+        num_steps=self._collect_steps_per_iteration).run()
+        dataset = replay_buffer.as_dataset(
+            num_parallel_calls=3,
+            sample_batch_size=train_env.batch_size,
+            num_steps=2).prefetch(3)
+        iterator = iter(dataset)
+
+
+        loss_log = []
+
+        steps_per_episode_log = []
+        episodes_per_log_interval = []
+        previous_n_episodes = 0
+
+        crash_counter_log = []
+        crash_counter_aux = 0
+
+        avg_steps_per_episode_per_eval_interval = []
+
+        train_py_env.print_rewards()
+
+        for _ in range(self._num_iterations):
+
+            # Collect a few steps and save to the replay buffer.
+            time_step, _ = collect_driver.run()
+
+            dataset = replay_buffer.as_dataset(
+                num_parallel_calls=3,
+                sample_batch_size=train_env.batch_size,
+                num_steps=2).prefetch(3)
+                
+            # Sample a batch of data from the buffer and update the agent's network.
+            trajectories, _ = next(iterator)
+            train_loss = self._agent.train(experience=trajectories).loss
+
+            step = self._agent.train_step_counter.numpy()
+
+            if step % self._eval_interval == 0:
+                print('step =', step)
+
+                step_log.append(step)
+                loss_log.append(float(train_loss))
+                
+                episodes_per_log_interval.append(num_episodes.result().numpy() - previous_n_episodes)
+                steps_per_episode_log.append(self._eval_interval / (episodes_per_log_interval[-1]))
+                previous_n_episodes = num_episodes.result().numpy()
+
+
+                if verbose: print('  loss = {0:.2f}'.format(train_loss))
+
+                eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes)
+                returns.append(eval_avg_return)
+                finished.append(eval_finished_percentage)
+                crashed.append(eval_crash_counter)
+                stucked.append(eval_stuck_counter)
+                steped.append(eval_steps)
+                
+                if verbose: print('  Average Return = {0:.2f}'.format(eval_avg_return))
+                
+                if verbose: print('  Finished Percentage = {0}'.format(eval_finished_percentage))
+
+                avg_steps_per_episode_per_eval_interval.append(self._eval_interval / sum(episodes_per_log_interval[-10:]))
+                if verbose: print('  Avg of Steps/Episode: {:.2f}'.format(avg_steps_per_episode_per_eval_interval[-1]) )
+
+                current_value = crash_counter.result()
+                crash_counter_log.append(current_value)
+                if verbose: print('  Crash = {0}'.format(current_value - crash_counter_aux))
+                crash_counter_aux = current_value
+
+        # Clear memory
+        del(dataset)
+        del(trajectories)
+        del(train_loss)
+        del(episodes_per_log_interval)
+        del(steps_per_episode_log)
+        del(previous_n_episodes)
+        del(avg_steps_per_episode_per_eval_interval)
+        del(crash_counter_log)
+
+        return step_log, returns, finished, crashed, stucked, steped, loss_log
