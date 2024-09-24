@@ -397,8 +397,11 @@ class TrainingSession:
 
             step = self._agent.train_step_counter.numpy()
 
-            if step % self._eval_interval == 0:
+            if step % 1000 == 0:
                 print('step =', step)
+
+            if step % self._eval_interval == 0:
+                if verbose: print('step =', step)
 
                 step_log.append(step)
                 loss_log.append(float(train_loss))

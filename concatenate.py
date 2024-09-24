@@ -1,21 +1,17 @@
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
+import sys
 
 def main():
-    # read_file = pd.read_csv("logs/01-rewards-combinations/03_comb-1-run-1.csv")
-    # df_full = pd.DataFrame(read_file)
 
-    # df_base = df_full.copy()
-
-    # df_base['Average Return'] += df_full['Average Return']
-
-    # print(df_base.head())
-    # print(df_full.head())
-
-    # df_base['Average Return'] /= 2.
-
-    # print(df_base.head())
+    if len(sys.argv) != 3:
+        print("Args: XX Y -> XX = file's 2 first digits, Y -> combination")
+        return -1
+    
+    file_num = sys.argv[1]
+    comb = int(sys.argv[2])
+    
 
     # Path dos arquivos a serem listados
     path = "/home/naski/Documents/dev/maze_drone_v02/logs/01-rewards-combinations"
@@ -23,13 +19,13 @@ def main():
     files = [f for f in listdir(path) if isfile(join(path, f))]
     lista_csv = [arq for arq in files if arq.lower().endswith(".csv")]
 
-    comb = 4
+    #comb = 4
     comb_files = []
 
     for file in lista_csv:
         #print(file)
         
-        if(int(file[8]) == comb):
+        if(file_num == file[:2] and int(file[8]) == comb):
             comb_files.append(file)
 
     print("Realizando a média dos seguintes arquivos:")
@@ -54,4 +50,6 @@ def main():
 
     df_base.to_csv(f"logs/01-rewards-combinations/Average/{file[:10]}avg.csv", index=None, header=True)
 
-main()
+
+if __name__ == "__main__":
+    main()
