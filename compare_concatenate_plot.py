@@ -67,7 +67,7 @@ def main():
 
     for i in range(1, quantidade_imagens+1):
     
-        read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
+        read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
         df = pd.DataFrame(read_file)
 
 

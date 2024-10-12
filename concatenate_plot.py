@@ -28,7 +28,7 @@ def plot_all(plt_ax, y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0
     y_axis_df = pd.DataFrame({y_name: y_data})
     y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
 
-    plt.subplot(1, 5, plt_ax)
+    plt.subplot(1, 6, plt_ax)
 
     plt.plot(y_axis_df[y_name], label='Original Values', marker='o')
     plt.plot(y_axis_df['moving_avg'], label=f'Moving Average ({period} periods)', linestyle='dashed')
@@ -51,7 +51,8 @@ def main():
     comb = int(sys.argv[2])
     
 
-    read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num}_comb-{comb}-avg.csv")
+    #read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num}_comb-{comb}-avg.csv")
+    read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num}_comb-{comb}-avg.csv")
     df = pd.DataFrame(read_file)
 
     # plot_moving_avg("Average Return", df['Average Return'])
@@ -67,6 +68,7 @@ def main():
     plot_all(3, "Crash Counter", df['Crash Counter'])
     plot_all(4, "Stuck Counter", df['Stuck Counter'])
     plot_all(5, "Avg Steps/Episode", df['Avg Steps/Episode'])
+    plot_all(6, "Loss", df['Loss log'])
 
     # Ajustar o layout
     plt.tight_layout()

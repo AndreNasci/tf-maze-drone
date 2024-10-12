@@ -69,7 +69,7 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
         epsilon_greedy=0.5,
         td_errors_loss_fn=common.element_wise_squared_loss,
         train_step_counter=train_step_counter)
-    return agent  
+    return agent 
 
 
 
@@ -332,7 +332,7 @@ class TrainingSession:
         # (Optional) Optimize by wrapping some of the code in a graph using TF function.
         self._agent.train = common.function(self._agent.train)
         # Reset the train step.
-        self._agent.train_step_counter.assign(0)
+        #self._agent.train_step_counter.assign(0)
 
         # Evaluate the agent's policy once before training.
         eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes)
@@ -368,7 +368,7 @@ class TrainingSession:
         iterator = iter(dataset)
 
 
-        loss_log = []
+        loss_log = [0]
 
         steps_per_episode_log = []
         episodes_per_log_interval = []
@@ -442,4 +442,5 @@ class TrainingSession:
         del(avg_steps_per_episode_per_eval_interval)
         del(crash_counter_log)
 
-        return step_log, returns, finished, crashed, stucked, steped, loss_log
+
+        return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer
