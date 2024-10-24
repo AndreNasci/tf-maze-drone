@@ -14,6 +14,9 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
         # This value defines the size of the maze
         self._maze_size = 3
+        # Maze mode:
+        #   0 - walls
+        #   1 - no walls 
         self._mode = 0
 
         # Default Rewards
@@ -112,6 +115,9 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def set_mode(self, mode):
         self._mode = mode
+
+    def set_size(self, size):
+        self._maze_size = size
 
     def update_rewards(self, destroyed, stuck, reached, standard):
         self._rewards['destroyed'] = destroyed

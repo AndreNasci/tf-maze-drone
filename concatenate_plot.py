@@ -31,7 +31,7 @@ def plot_all(plt_ax, y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0
     plt.subplot(1, 6, plt_ax)
 
     plt.plot(y_axis_df[y_name], label='Original Values', marker='o')
-    plt.plot(y_axis_df['moving_avg'], label=f'Moving Average ({period} periods)', linestyle='dashed')
+    plt.plot(y_axis_df['moving_avg'], label=f'Mov. Avg ({period} periods)', linestyle='dashed')
     plt.xlabel('Period')
     plt.ylabel(y_name)
     plt.title(f'Moving average - {y_name}')
@@ -52,7 +52,9 @@ def main():
     
 
     #read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num}_comb-{comb}-avg.csv")
-    read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num}_comb-{comb}-avg.csv")
+    #read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num}_comb-{comb}-avg.csv")
+    read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num}_comb-{comb}-run-1.csv")
+    
     df = pd.DataFrame(read_file)
 
     # plot_moving_avg("Average Return", df['Average Return'])

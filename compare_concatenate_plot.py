@@ -28,10 +28,10 @@ def plot_all(plt_ax, quantidade_imagens, y_name, y_data, period=10, ylim=False, 
     y_axis_df = pd.DataFrame({y_name: y_data})
     y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
 
-    plt.subplot(quantidade_imagens, 5, plt_ax)
+    plt.subplot(quantidade_imagens, 6, plt_ax)
 
     plt.plot(y_axis_df[y_name], label='Original Values', marker='o')
-    plt.plot(y_axis_df['moving_avg'], label=f'Moving Average ({period} periods)', linestyle='dashed')
+    plt.plot(y_axis_df['moving_avg'], label=f'Mov Avg ({period} periods)', linestyle='dashed')
     plt.xlabel('Period')
     plt.ylabel(y_name)
     plt.title(f'Moving average - {y_name}')
@@ -68,15 +68,17 @@ def main():
     for i in range(1, quantidade_imagens+1):
     
         read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
+        #read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num[i-1]}_comb-{comb[i-1]}.csv")
+        
         df = pd.DataFrame(read_file)
 
 
-        plot_all(1 + 5 * (i-1), quantidade_imagens, "Average Return", df['Average Return'])
-        plot_all(2 + 5 * (i-1), quantidade_imagens, "% Finished", df['% Finished'])
-        plot_all(3 + 5 * (i-1), quantidade_imagens, "Crash Counter", df['Crash Counter'])
-        plot_all(4 + 5 * (i-1), quantidade_imagens, "Stuck Counter", df['Stuck Counter'])
-        plot_all(5 + 5 * (i-1), quantidade_imagens, "Avg Steps/Episode", df['Avg Steps/Episode'])
-
+        plot_all(1 + 6 * (i-1), quantidade_imagens, "Average Return", df['Average Return'])
+        plot_all(2 + 6 * (i-1), quantidade_imagens, "% Finished", df['% Finished'])
+        plot_all(3 + 6 * (i-1), quantidade_imagens, "Crash Counter", df['Crash Counter'])
+        plot_all(4 + 6 * (i-1), quantidade_imagens, "Stuck Counter", df['Stuck Counter'])
+        plot_all(5 + 6 * (i-1), quantidade_imagens, "Avg Steps/Episode", df['Avg Steps/Episode'])
+        plot_all(6 + 6 * (i-1), quantidade_imagens, "Loss", df['Loss log'])
 
     # Ajustar o layout
     plt.tight_layout()

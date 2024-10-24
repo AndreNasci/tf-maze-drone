@@ -56,6 +56,7 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    # optimizer = tf.keras.optimizers.Adam() # opção sem learning rate declarada
 
     train_step_counter = tf.Variable(0)
 
@@ -267,9 +268,11 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 
 class TrainingSession:
     
-    def __init__(self, env_name, rewards, agent, collect_steps_per_iteration, 
+    def __init__(self, description, maze_size, env_name, rewards, agent, collect_steps_per_iteration, 
                  num_iterations, eval_interval, replay_buffer_max_length, num_eval_episodes):
         
+        self._description = description
+        self._maze_size = maze_size
         self._env_name = env_name
         self._rewards = rewards
         self._agent = agent
@@ -280,6 +283,8 @@ class TrainingSession:
         self._num_eval_episodes = num_eval_episodes
 
     def reset(self):
+        del(self._description)
+        del(self._maze_size)
         del(self._env_name)
         del(self._rewards) 
         del(self._agent) 
@@ -290,18 +295,25 @@ class TrainingSession:
         del(self._num_eval_episodes) 
 
 
-    def train(self, verbose=False):
+    def train(self, without_wall_training=True, verbose=False):
+
 
         # ENVIRONMENT
         train_py_env = suite_gym.load(self._env_name)
         eval_py_env = suite_gym.load(self._env_name)
+        #wall_py_env = suite_gym.load(self._env_name)
 
         train_py_env.update_rewards(self._rewards['destroyed'], self._rewards['stuck'], self._rewards['reached'], self._rewards['standard'])
         eval_py_env.update_rewards(self._rewards['destroyed'], self._rewards['stuck'], self._rewards['reached'], self._rewards['standard'])
+        #wall_py_env.update_rewards(self._rewards['destroyed'], self._rewards['stuck'], self._rewards['reached'], self._rewards['standard'])
+
+        train_py_env.set_mode(int(without_wall_training))
+        eval_py_env.set_mode(int(without_wall_training))
 
         # Converts environments, originally in pure Python, to tensors (using a wrapper)
         train_env = tf_py_environment.TFPyEnvironment(train_py_env)
         eval_env = tf_py_environment.TFPyEnvironment(eval_py_env)
+        #wall_env = tf_py_environment.TFPyEnvironment(wall_py_env)
 
         # POLICIES
         # The main policy that is used for evaluation and deployment.
@@ -345,8 +357,10 @@ class TrainingSession:
 
         # Reset the environment.
         time_step = train_py_env.reset()
-        train_py_env.set_mode(1)
-        eval_py_env.set_mode(1)
+        # Set wall mode 
+        # train_py_env.set_mode(int(without_wall_training))
+        # eval_py_env.set_mode(int(without_wall_training))
+        #wall_env.set_mode(0)
 
         # Create a driver to collect experience.
         collect_driver = dynamic_step_driver.DynamicStepDriver(
@@ -396,7 +410,8 @@ class TrainingSession:
             train_loss = self._agent.train(experience=trajectories).loss
 
             step = self._agent.train_step_counter.numpy()
-
+            
+            # Logging
             if step % 1000 == 0:
                 print('step =', step)
 
@@ -431,6 +446,12 @@ class TrainingSession:
                 crash_counter_log.append(current_value)
                 if verbose: print('  Crash = {0}'.format(current_value - crash_counter_aux))
                 crash_counter_aux = current_value
+        
+        #wall_log = [compute_logs(wall_env, self._agent.policy, self._rewards, self._num_eval_episodes)]
+        wall_log = 1
+        print("learning_rate inside:", self._agent._optimizer.learning_rate)
+
+        #create_policy_eval_video(self._agent.policy, f"trained-agent-{self._description}", train_env, train_py_env)
 
         # Clear memory
         del(dataset)
@@ -443,4 +464,4 @@ class TrainingSession:
         del(crash_counter_log)
 
 
-        return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer
+        return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, wall_log
