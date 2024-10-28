@@ -43,17 +43,18 @@ def plot_all(plt_ax, y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("Args: XX Y -> XX = file's 2 first digits, Y -> combination")
+    if len(sys.argv) != 4:
+        print("Args: XX Y -> XX = file's 2 first digits, Y -> combination, Z -> run")
         return -1
     
     file_num = sys.argv[1]
     comb = int(sys.argv[2])
+    run = int(sys.argv[3])
     
 
     #read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num}_comb-{comb}-avg.csv")
     #read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num}_comb-{comb}-avg.csv")
-    read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num}_comb-{comb}-run-1.csv")
+    read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num}_comb-{comb}-run-{run}.csv")
     
     df = pd.DataFrame(read_file)
 

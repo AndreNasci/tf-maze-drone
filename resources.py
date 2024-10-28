@@ -55,8 +55,10 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
     
     q_net = sequential.Sequential(dense_layers + [q_values_layer])
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-    # optimizer = tf.keras.optimizers.Adam() # opção sem learning rate declarada
+    if learning_rate:
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    else:
+        optimizer = tf.keras.optimizers.Adam() # opção sem learning rate declarada
 
     train_step_counter = tf.Variable(0)
 
@@ -295,8 +297,10 @@ class TrainingSession:
         del(self._num_eval_episodes) 
 
 
-    def train(self, without_wall_training=True, verbose=False):
+    def train(self, without_wall_training=True, early_stop=False, verbose=False):
 
+        # EARLY STOP
+        early_stop_steps = 500
 
         # ENVIRONMENT
         train_py_env = suite_gym.load(self._env_name)
@@ -309,6 +313,9 @@ class TrainingSession:
 
         train_py_env.set_mode(int(without_wall_training))
         eval_py_env.set_mode(int(without_wall_training))
+
+        train_py_env.set_size(self._maze_size)
+        eval_py_env.set_size(self._maze_size)
 
         # Converts environments, originally in pure Python, to tensors (using a wrapper)
         train_env = tf_py_environment.TFPyEnvironment(train_py_env)
@@ -395,6 +402,8 @@ class TrainingSession:
 
         train_py_env.print_rewards()
 
+        early_stop_counter = 0
+
         for _ in range(self._num_iterations):
 
             # Collect a few steps and save to the replay buffer.
@@ -434,7 +443,20 @@ class TrainingSession:
                 crashed.append(eval_crash_counter)
                 stucked.append(eval_stuck_counter)
                 steped.append(eval_steps)
-                
+
+                if early_stop:
+                    if early_stop == "stuck":
+                        if eval_stuck_counter == 0: 
+                            early_stop_counter += 1
+                            print("Early stop counter:", early_stop_counter)
+                        else: 
+                            early_stop_counter = 0
+                            print("Early stop reseted at", step)
+
+                    if early_stop_counter * self._eval_interval >= early_stop_steps:
+                        print("Early stop at", step)
+                        break
+
                 if verbose: print('  Average Return = {0:.2f}'.format(eval_avg_return))
                 
                 if verbose: print('  Finished Percentage = {0}'.format(eval_finished_percentage))
@@ -463,5 +485,7 @@ class TrainingSession:
         del(avg_steps_per_episode_per_eval_interval)
         del(crash_counter_log)
 
-
-        return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, wall_log
+        if early_stop:
+            return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, self._agent
+        else:    
+            return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, wall_log

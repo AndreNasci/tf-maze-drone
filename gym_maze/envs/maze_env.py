@@ -114,9 +114,11 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     
 
     def set_mode(self, mode):
+        print(f"Mode set: {mode}")
         self._mode = mode
 
     def set_size(self, size):
+        print(f"Maze site set: {size}x{size}")
         self._maze_size = size
 
     def update_rewards(self, destroyed, stuck, reached, standard):
