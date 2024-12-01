@@ -14,7 +14,8 @@ def main():
     
 
     # Path dos arquivos a serem listados
-    path = "/home/naski/Documents/dev/maze_drone_v02/logs/02-stuck-improving"
+    #path = "/home/naski/Documents/dev/maze_drone_v02/logs/02-stuck-improving"
+    path = "/home/naski/Documents/dev/maze_drone_v02/logs/03-walls"
 
     files = [f for f in listdir(path) if isfile(join(path, f))]
     lista_csv = [arq for arq in files if arq.lower().endswith(".csv")]
@@ -48,7 +49,7 @@ def main():
 
     print(df_base.head())
 
-    df_base.to_csv(f"logs/02-stuck-improving/Average/{file[:10]}avg.csv", index=None, header=True)
+    df_base.to_csv(f"logs/03-walls/Average/{file[:10]}avg.csv", index=None, header=True)
 
 
 if __name__ == "__main__":

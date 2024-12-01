@@ -23,7 +23,7 @@ def plot_moving_avg(y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0)
 
 
 
-def plot_all(plt_ax, y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0):
+def plot_all(plt_ax, y_name, y_data, period=100, ylim=False, top_lim=0, bot_lim=0):
     
     y_axis_df = pd.DataFrame({y_name: y_data})
     y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
@@ -54,7 +54,8 @@ def main():
 
     #read_file = pd.read_csv(f"logs/01-rewards-combinations/Average/{file_num}_comb-{comb}-avg.csv")
     #read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num}_comb-{comb}-avg.csv")
-    read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num}_comb-{comb}-run-{run}.csv")
+    #read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num}_comb-{comb}-avg.csv")
+    read_file = pd.read_csv(f"logs/03-walls/{file_num}_comb-{comb}-run-{run}.csv")
     
     df = pd.DataFrame(read_file)
 

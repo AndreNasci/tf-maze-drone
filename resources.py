@@ -66,7 +66,7 @@ def build_agent(fc_layer_params, env, learning_rate, train_env):
 
     agent = dqn_agent.DqnAgent(
         train_env.time_step_spec(),
-        train_env.action_spec(),
+        train_env.action_spec(),    
         q_network=q_net,
         optimizer=optimizer,
         epsilon_greedy=0.5,
@@ -447,6 +447,14 @@ class TrainingSession:
                 if early_stop:
                     if early_stop == "stuck":
                         if eval_stuck_counter == 0: 
+                            early_stop_counter += 1
+                            print("Early stop counter:", early_stop_counter)
+                        else: 
+                            early_stop_counter = 0
+                            print("Early stop reseted at", step)
+
+                    if early_stop == "crash":
+                        if eval_crash_counter == 0: 
                             early_stop_counter += 1
                             print("Early stop counter:", early_stop_counter)
                         else: 
