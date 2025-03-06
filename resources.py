@@ -120,7 +120,7 @@ def finish_counter(environment, policy, reached_end_reward, num_episodes=10):
     finished_percentage = finished_episodes / float(num_episodes)
     return finished_percentage
 
-def compute_logs(environment, policy, rewards, num_episodes=10):
+def compute_logs(environment, policy, rewards, num_episodes=10, verbose=False):
     total_return = 0.0
     finished_episodes = 0
     crashes_counter = 0
@@ -147,6 +147,8 @@ def compute_logs(environment, policy, rewards, num_episodes=10):
 
         if time_step.reward == rewards['reached']:
             finished_episodes += 1
+
+        if verbose: print()
 
     avg_steps = step_counter / float(num_episodes)
     avg_return = total_return / float(num_episodes)
@@ -426,6 +428,7 @@ class TrainingSession:
 
             if step % self._eval_interval == 0:
                 if verbose: print('step =', step)
+                #print('step =', step)
 
                 step_log.append(step)
                 loss_log.append(float(train_loss))
@@ -444,26 +447,61 @@ class TrainingSession:
                 stucked.append(eval_stuck_counter)
                 steped.append(eval_steps)
 
+                # EARLY STOP
                 if early_stop:
                     if early_stop == "stuck":
                         if eval_stuck_counter == 0: 
                             early_stop_counter += 1
-                            print("Early stop counter:", early_stop_counter)
+                            #print("Early stop counter:", early_stop_counter)
                         else: 
                             early_stop_counter = 0
-                            print("Early stop reseted at", step)
+                            if verbose: print("Early stop reseted at", step)
 
                     if early_stop == "crash":
                         if eval_crash_counter == 0: 
                             early_stop_counter += 1
-                            print("Early stop counter:", early_stop_counter)
+                            #print("Early stop counter:", early_stop_counter)
                         else: 
                             early_stop_counter = 0
-                            print("Early stop reseted at", step)
+                            if verbose: print("Early stop reseted at", step)
 
-                    if early_stop_counter * self._eval_interval >= early_stop_steps:
+                    if early_stop == "stuckANDcrash":
+                        if eval_crash_counter == 0 and eval_stuck_counter == 0:
+                            early_stop_counter += 1
+                            #print("Early stop counter:", early_stop_counter)
+                        else: 
+                            early_stop_counter = 0
+                            if verbose: print("Early stop reseted at", step)
+
+
+
+                    
+                    if ( (early_stop_counter * self._eval_interval) % early_stop_steps ) and verbose:
+                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 10)
+                        print("\n=====================================================================(", early_stop_counter, ")")
+                        print("Small check log:")
+                        print("Avg return:", eval_avg_return)
+                        print("Finished:", eval_finished_percentage)
+                        print("Crash Counter:", eval_crash_counter)
+                        print("Stuck counter:", eval_stuck_counter)
+                        print("==========================================================================\n")
+                        
+                    if (early_stop_counter * self._eval_interval) % early_stop_steps == 0 and early_stop_counter:
+                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 100)
+                        print("\n=============================================================( EARLY STOP )")
+                        print("Big check log:")
+                        print("Avg return:", eval_avg_return)
+                        print("Finished:", eval_finished_percentage)
+                        print("Crash Counter:", eval_crash_counter)
+                        print("Stuck counter:", eval_stuck_counter)
                         print("Early stop at", step)
-                        break
+                        print("==========================================================================\n")
+                        if eval_crash_counter == 0 and eval_stuck_counter == 0 and early_stop == "stuckANDcrash":
+                            break
+                        elif early_stop == "crash" or early_stop == "stuck":
+                            break
+                        else: 
+                            early_stop_counter -= 1
 
                 if verbose: print('  Average Return = {0:.2f}'.format(eval_avg_return))
                 

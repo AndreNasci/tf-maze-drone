@@ -4,7 +4,7 @@ from os.path import isfile, join
 import matplotlib.pyplot as plt
 import sys
 
-def plot_moving_avg(y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0):
+def plot_moving_avg(y_name, y_data, period=100, ylim=False, top_lim=0, bot_lim=0):
     y_axis_df = pd.DataFrame({y_name: y_data})
     
     y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
@@ -67,8 +67,10 @@ def main():
 
     for i in range(1, quantidade_imagens+1):
     
-        read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
+        #read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
         #read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num[i-1]}_comb-{comb[i-1]}.csv")
+        read_file = pd.read_csv(f"logs/04-stateChange/{file_num[i-1]}_comb-{comb[i-1]}-run-1.csv")
+        
         
         df = pd.DataFrame(read_file)
 

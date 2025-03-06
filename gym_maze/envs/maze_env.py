@@ -33,9 +33,23 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # Justifying action and observation space
         # Actions: north, east, south, west
         self.action_space = spaces.Discrete(4)
-        # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target
-        low = np.array([0., 0., 0., 0., 0., -3.15], dtype=np.float32)
-        high = np.array([1., 1., 1., 1., 20., 3.15], dtype=np.float32)
+
+        # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target, theta
+        #               wall_north, wall_east, wall_south, wall_weast, action taken, (three movements ago)
+        #               wall_north, wall_east, wall_south, wall_weast, action taken, (two movements ago)
+        #               wall_north, wall_east, wall_south, wall_weast, action taken, (from last moovement)
+        low = np.array([0., 0., 0., 0., 0., -3.15, 
+                        -1, -1, -1, -1, -1, 
+                        -1, -1, -1, -1, -1, 
+                        -1, -1, -1, -1, -1], 
+                        dtype=np.float32)
+        
+        high = np.array([1., 1., 1., 1., 20., 3.15,
+                         1, 1, 1, 1, 3,
+                         1, 1, 1, 1, 3,
+                         1, 1, 1, 1, 3], 
+                         dtype=np.float32)
+        
         self.observation_space = spaces.Box(low=low, high=high)
 
 

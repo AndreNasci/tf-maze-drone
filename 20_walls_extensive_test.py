@@ -37,10 +37,10 @@ def main():
     max_run = int(sys.argv[3])
 
 
-    num_iterations = 10_000 # @param {type:"integer"}
+    num_iterations = 20_000 # @param {type:"integer"}
 
     initial_collect_steps = 64  # @param {type:"integer"}
-    collect_steps_per_iteration = 1 # @param {type:"integer"}
+    collect_steps_per_iteration = 5 # @param {type:"integer"}
     #replay_buffer_max_length = 100000  # @param {type:"integer"}
     replay_buffer_max_length = 100  # @param {type:"integer"}
 
@@ -55,7 +55,7 @@ def main():
     fc_layer_params = (200,) 
 
     # File's name
-    description = "20"
+    description = "202"
 
     maze_size = 3
 
@@ -114,11 +114,11 @@ def main():
 
 
 
-    print("============================================================== After first training:")
+    print("\n============================================================== After first training:")
 
     print(agent.train_step_counter)
 
-    checkpoint_dir = './checkpoint/phase-2-stuck'
+    checkpoint_dir = './checkpoint/phase-2-1-stuck'
     train_checkpointer = common.Checkpointer(
         ckpt_dir=checkpoint_dir,
         max_to_keep=1,
@@ -138,7 +138,7 @@ def main():
     agent._optimizer.learning_rate = learning_rate
     print(agent._optimizer.learning_rate)
 
-    print("========================================================================== Training:")
+    print("\n========================================================================== Training:")
 
 
     for combination in range(min_combination-1, min_combination):
@@ -162,11 +162,11 @@ def main():
                                     num_iterations, eval_interval, replay_buffer_max_length, num_eval_episodes)
             
             # TRAINING
-            step_log, returns, finished, crashed, stucked, steped, log_loss, _, _ = session.train(without_wall_training=False)
+            step_log, returns, finished, crashed, stucked, steped, log_loss, _, _ = session.train(without_wall_training=False, early_stop="stuckANDcrash")
 
             # LOGGING
             df_log = pd.DataFrame({'Step': step_log, 'Average Return': returns, '% Finished': finished, 'Crash Counter': crashed, 'Stuck Counter': stucked, 'Avg Steps/Episode': steped, 'Loss log': log_loss})
-            df_log.to_csv(f"logs/03-walls/{description}_comb-{combination+1}-run-{run+1}.csv", index=None, header=True)
+            df_log.to_csv(f"logs/04-stateChange/{description}_comb-{combination+1}-run-{run+1}.csv", index=None, header=True)
 
             # CLEAR MEMORY
             #del(agent)

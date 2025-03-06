@@ -1,0 +1,3 @@
+run,check_1,check_2,check_3,avg_return,finished_percentage,crashes_counter,stuck_counter,avg_steps
+1,1900,2500,15400,-3.33,0.812,0,28,11.87
+2,1900,2800,29000,1.239,0.889,0,0,8.54

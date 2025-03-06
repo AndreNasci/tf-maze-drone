@@ -60,6 +60,11 @@ class MazeDrone:
         }
         #print('Drone rewards:', self._rewards)
 
+
+        self._stateAction_history = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+        self._last_action = -1
+        self.last_state = [-1, -1, -1, -1]
+
     def observe(self):
         """
 
@@ -70,14 +75,19 @@ class MazeDrone:
         """
         # Check for walls around the current position
         walls = self._get_walls()
-        
+
         # Concatena com distância para o target
         r, theta = self._get_polar_distance()
-        observation = walls + [r, theta]
+        observation = walls + [r, theta] + self._stateAction_history
         
+
         # Info for human mode
         if self._human_render: print(" D0   R1   U2   L3")
         if self._human_render: print(observation)
+
+
+        # Update Last State
+        self._last_state = walls
         
         return np.array(observation, dtype=np.float32)
 
@@ -98,6 +108,14 @@ class MazeDrone:
         if self._step_counter >= self._step_limit:
             if self._human_render: print("Número máximo de steps atingido.")
             self._is_done = True
+
+        # Update State & Action history
+        self._stateAction_history.pop(0)
+        self._stateAction_history.pop(0)
+        self._stateAction_history.pop(0)
+        self._stateAction_history.pop(0)
+        self._stateAction_history.pop(0)
+        self._stateAction_history = self._stateAction_history + self._last_state + [action]
 
         
 
