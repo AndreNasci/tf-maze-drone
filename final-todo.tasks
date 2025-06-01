@@ -1,0 +1,30 @@
+Modificação do ambiente:
+    ✔ Parâmetro para alteração do ambiente @done (5/31/2025, 9:27:30 PM)
+    Um parâmetro, em formato de número, que permita transitar entre os
+    ambientes / fases desenvolvidos.
+
+    ✔ Modificar função de plot @done (6/1/2025, 1:36:51 AM)
+    Para ser possível comparar as fases, é preciso que as funções de plot
+    se adaptem de acordo com o parâmetro passado. 
+
+    ✔ Observation_spec adaptável @done (6/1/2025, 1:36:56 AM)
+    É preciso que o escopo de observação se modifique de acordo com o 
+    parâmetro passado
+
+    ✔ Reward_spec adaptável @done (6/1/2025, 1:36:59 AM)
+    É preciso que o escopo de recompensas se modifique de acordo com o
+    parâmetro passado
+
+    ✔ Hiperparâmetros condensados @done (6/1/2025, 1:37:01 AM)
+    Para fins de comparação e fácil visualização, é necessário que todos
+    os parâmetros que possam variar se encontrem em um único lugar. 
+
+    ☐ Adicionar early stop por % Finished
+
+    Diferentes combinações de rewards, topologias
+    diferentes combinaçãoes de LR, e-greedy
+
+    seria interessante mudar a função de ativação e ver a diferença
+
+    Grid search
+    

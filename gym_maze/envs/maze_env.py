@@ -10,14 +10,23 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     # Render modes supported and framerate at which it will be rendered
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, observation_type=1, render_mode=None):
 
         # This value defines the size of the maze
         self._maze_size = 3
+
         # Maze mode:
         #   0 - walls
         #   1 - no walls 
         self._mode = 0
+
+        
+        # Historical Environments
+        # 1 - Observation: walls + distance, 3 rewards
+        # 2 - Observation: walls + r + theta, 4 rewards
+        # 3 - Observation: walls + r + theta + movement history, 4 rewards
+        self._hist_env = observation_type
+        
 
         # Default Rewards
         self._rewards = {
@@ -28,7 +37,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         }
 
         # Creates the maze 
-        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode)
+        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode, self._hist_env)
         
         # Justifying action and observation space
         # Actions: north, east, south, west
@@ -37,20 +46,21 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target, theta
         #               wall_north, wall_east, wall_south, wall_weast, action taken, (three movements ago)
         #               wall_north, wall_east, wall_south, wall_weast, action taken, (two movements ago)
-        #               wall_north, wall_east, wall_south, wall_weast, action taken, (from last moovement)
-        low = np.array([0., 0., 0., 0., 0., -3.15, 
-                        -1, -1, -1, -1, -1, 
-                        -1, -1, -1, -1, -1, 
-                        -1, -1, -1, -1, -1], 
-                        dtype=np.float32)
+        #               wall_north, wall_east, wall_south, wall_weast, action taken, (from last movement)
+        # low = np.array([0., 0., 0., 0., 0., -3.15, 
+        #                 -1, -1, -1, -1, -1, 
+        #                 -1, -1, -1, -1, -1, 
+        #                 -1, -1, -1, -1, -1], 
+        #                 dtype=np.float32)
         
-        high = np.array([1., 1., 1., 1., 20., 3.15,
-                         1, 1, 1, 1, 3,
-                         1, 1, 1, 1, 3,
-                         1, 1, 1, 1, 3], 
-                         dtype=np.float32)
+        # high = np.array([1., 1., 1., 1., 20., 3.15,
+        #                  1, 1, 1, 1, 3,
+        #                  1, 1, 1, 1, 3,
+        #                  1, 1, 1, 1, 3], 
+        #                  dtype=np.float32)
         
-        self.observation_space = spaces.Box(low=low, high=high)
+        #self.observation_space = self.set_hist_env(self._hist_env)
+        self.set_hist_env(self._hist_env)
 
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
@@ -67,14 +77,14 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         Return:
             The first observation data from the environment.
         """ 
-        super().reset(seed=seed)
+        super().reset(seed=7)
 
         #print("Reset Environment")
         #print('Rewards:', self._rewards)
 
 
         del self.maze_drone
-        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode)
+        self.maze_drone = MazeDrone(self._rewards, self._maze_size, self._maze_size, self._mode, self._hist_env)
         obs = self.maze_drone.observe()
 
         if not return_info:
@@ -135,6 +145,42 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         print(f"Maze site set: {size}x{size}")
         self._maze_size = size
 
+    def set_hist_env(self, hist_env):
+
+        if hist_env == 1:
+            # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target
+            low = np.array([0., 0., 0., 0., 0.], 
+                        dtype=np.float32)
+            high = np.array([1., 1., 1., 1., 20.], 
+                        dtype=np.float32)
+        elif hist_env == 2:
+            # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target, theta
+            low = np.array([0., 0., 0., 0., 0., -3.15], 
+                        dtype=np.float32)
+            high = np.array([1., 1., 1., 1., 20., 3.15], 
+                        dtype=np.float32)
+        else:
+            # Observations: wall_north, wall_east, wall_south, wall_weast, distance_target, theta
+            #               wall_north, wall_east, wall_south, wall_weast, action taken, (three movements ago)
+            #               wall_north, wall_east, wall_south, wall_weast, action taken, (two movements ago)
+            #               wall_north, wall_east, wall_south, wall_weast, action taken, (from last movement)
+            low = np.array([0., 0., 0., 0., 0., -3.15, 
+                            -1, -1, -1, -1, -1, 
+                            -1, -1, -1, -1, -1, 
+                            -1, -1, -1, -1, -1], 
+                            dtype=np.float32)
+            
+            high = np.array([1., 1., 1., 1., 20., 3.15,
+                            1, 1, 1, 1, 3,
+                            1, 1, 1, 1, 3,
+                            1, 1, 1, 1, 3], 
+                            dtype=np.float32)
+
+        self._hist_env = hist_env
+        print("Historical Environment updated: ", hist_env)
+        self.observation_space = spaces.Box(low=low, high=high)
+        
+
     def update_rewards(self, destroyed, stuck, reached, standard):
         self._rewards['destroyed'] = destroyed
         self._rewards['stuck'] = stuck
@@ -144,3 +190,9 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
 
     def print_rewards(self):
         print('Rewards:', self._rewards)
+
+    def print_environment(self):
+        print("Rewards:", self._rewards)
+        print("Size:", self._maze_size)
+        print("Mode:", self._mode)
+        print("Hist env:", self._hist_env)

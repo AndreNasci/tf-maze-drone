@@ -42,7 +42,7 @@ def dense_layer(num_units):
         activation=tf.keras.activations.relu)
 
 
-def build_agent(fc_layer_params, env, learning_rate, train_env):
+def build_agent(fc_layer_params, env, learning_rate, train_env, hist_env):
 
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
@@ -120,17 +120,22 @@ def finish_counter(environment, policy, reached_end_reward, num_episodes=10):
     finished_percentage = finished_episodes / float(num_episodes)
     return finished_percentage
 
-def compute_logs(environment, policy, rewards, num_episodes=10, verbose=False):
+def compute_logs(environment, policy, rewards, num_episodes=10, verbose=False, hist_env=1):
     total_return = 0.0
     finished_episodes = 0
     crashes_counter = 0
     stuck_counter = 0
     step_counter = 0
 
+    
+
     for _ in range(num_episodes):
 
         time_step = environment.reset()
+        
         episode_return = 0.0
+
+    
 
         while not time_step.is_last():
             action_step = policy.action(time_step)
@@ -224,6 +229,49 @@ def plot_metric_per_iteration(num_iterations, interval, metric, y_label, ylim=Fa
     plt.show()
 
 
+def subplot_metric_aux(plt_ax, y_name, y_data, period=10, ylim=False, top_lim=0, bot_lim=0, hist_env=1):
+    
+    y_axis_df = pd.DataFrame({y_name: y_data})
+    y_axis_df['moving_avg'] = y_axis_df[y_name].rolling(window=period).mean()
+
+    if hist_env == 1: 
+        plt.subplot(1, 5, plt_ax)
+    else:
+        plt.subplot(1, 6, plt_ax)
+
+    plt.plot(y_axis_df[y_name], label='Original Values', marker='o')
+    plt.plot(y_axis_df['moving_avg'], label=f'Mov Avg ({period} periods)', linestyle='dashed')
+    plt.xlabel('Period (x 100 steps)')
+    plt.ylabel(y_name)
+    plt.title(f'Moving average - {y_name}')
+    plt.legend()
+    plt.grid(axis='y')
+
+    if ylim:
+        plt_ax.ylim(top=top_lim, bottom=bot_lim)
+
+
+def plot_all_metrics(df, period=-1, hist_env=1):
+
+    if period == -1:
+        num_linhas, _ = df.shape
+        period = int(num_linhas * 0.3)
+
+    plt.figure(figsize=(24, 3))
+
+    subplot_metric_aux(1, "Average Return", df['Average Return'], period=period, hist_env=hist_env)
+    subplot_metric_aux(2, "% Finished", df['% Finished'], period=period, hist_env=hist_env)
+    subplot_metric_aux(3, "Crash Counter", df['Crash Counter'], period=period, hist_env=hist_env)
+    subplot_metric_aux(4, "Avg Steps/Episode", df['Avg Steps/Episode'], period=period, hist_env=hist_env)
+    subplot_metric_aux(5, "Loss", df['Loss log'], period=period, hist_env=hist_env)
+    if hist_env != 1:
+        subplot_metric_aux(6, "Stuck Counter", df['Stuck Counter'], period=period, hist_env=hist_env)
+
+    # Ajustar o layout
+    plt.tight_layout()
+    plt.show()
+
+
 
 
 """ VIDEO GENERATOR
@@ -273,7 +321,7 @@ from tf_agents.replay_buffers import tf_uniform_replay_buffer
 class TrainingSession:
     
     def __init__(self, description, maze_size, env_name, rewards, agent, collect_steps_per_iteration, 
-                 num_iterations, eval_interval, replay_buffer_max_length, num_eval_episodes):
+                 num_iterations, eval_interval, replay_buffer_max_length, num_eval_episodes, hist_env):
         
         self._description = description
         self._maze_size = maze_size
@@ -285,6 +333,7 @@ class TrainingSession:
         self._eval_interval = eval_interval
         self._replay_buffer_max_length = replay_buffer_max_length
         self._num_eval_episodes = num_eval_episodes
+        self._hist_env = hist_env
 
     def reset(self):
         del(self._description)
@@ -296,7 +345,8 @@ class TrainingSession:
         del(self._num_iterations) 
         del(self._eval_interval) 
         del(self._replay_buffer_max_length) 
-        del(self._num_eval_episodes) 
+        del(self._num_eval_episodes)
+        del(self._hist_env) 
 
 
     def train(self, without_wall_training=True, early_stop=False, verbose=False):
@@ -318,6 +368,9 @@ class TrainingSession:
 
         train_py_env.set_size(self._maze_size)
         eval_py_env.set_size(self._maze_size)
+
+        train_py_env.set_hist_env(self._hist_env)
+        eval_py_env.set_hist_env(self._hist_env)
 
         # Converts environments, originally in pure Python, to tensors (using a wrapper)
         train_env = tf_py_environment.TFPyEnvironment(train_py_env)
@@ -356,7 +409,7 @@ class TrainingSession:
         #self._agent.train_step_counter.assign(0)
 
         # Evaluate the agent's policy once before training.
-        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes)
+        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes, False, self._hist_env)
         returns = [eval_avg_return]
         finished = [eval_finished_percentage]
         crashed = [eval_crash_counter]
@@ -402,7 +455,7 @@ class TrainingSession:
 
         avg_steps_per_episode_per_eval_interval = []
 
-        train_py_env.print_rewards()
+        train_py_env.print_environment()
 
         early_stop_counter = 0
 
@@ -440,7 +493,7 @@ class TrainingSession:
 
                 if verbose: print('  loss = {0:.2f}'.format(train_loss))
 
-                eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes)
+                eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, self._num_eval_episodes, False, self._hist_env)
                 returns.append(eval_avg_return)
                 finished.append(eval_finished_percentage)
                 crashed.append(eval_crash_counter)
@@ -477,7 +530,7 @@ class TrainingSession:
 
                     
                     if ( (early_stop_counter * self._eval_interval) % early_stop_steps ) and verbose:
-                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 10)
+                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 10, False, self._hist_env)
                         print("\n=====================================================================(", early_stop_counter, ")")
                         print("Small check log:")
                         print("Avg return:", eval_avg_return)
@@ -487,7 +540,7 @@ class TrainingSession:
                         print("==========================================================================\n")
                         
                     if (early_stop_counter * self._eval_interval) % early_stop_steps == 0 and early_stop_counter:
-                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 100)
+                        eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 100, False, self._hist_env)
                         print("\n=============================================================( EARLY STOP )")
                         print("Big check log:")
                         print("Avg return:", eval_avg_return)
@@ -534,4 +587,5 @@ class TrainingSession:
         if early_stop:
             return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, self._agent
         else:    
-            return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, wall_log
+            #return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, wall_log
+            return step_log, returns, finished, crashed, stucked, steped, loss_log, replay_buffer, self._agent

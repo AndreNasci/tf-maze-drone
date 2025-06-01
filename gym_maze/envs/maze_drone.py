@@ -5,7 +5,7 @@ from collections import deque
 
 class MazeDrone:
     
-    def __init__(self, rewards_env, height=10, width=10, mode=0):
+    def __init__(self, rewards_env, height=10, width=10, mode=0, hist_env=1):
         
         """
         The following dictionary maps abstract actions from `self.action_space` 
@@ -23,10 +23,18 @@ class MazeDrone:
         }
 
         # Create a new maze
+        # Mode = 0 (with walls)
+        # Mode = 1 (without walls)
         if mode == 0:
             self.maze = Maze(height, width, algorithm = "bin_tree")
         elif mode == 1:
             self.maze = Maze(height, width, algorithm = "empty")
+
+        # Historical Environments
+        # 1 - Observation: walls + distance, 3 rewards
+        # 2 - Observation: walls + r + theta, 4 rewards
+        # 3 - Observation: walls + r + theta + movement history, 4 rewards
+        self._hist_env = hist_env
 
         # Sets the drone's position to the start of the maze
         self._drone = self.maze.entry_coor
@@ -58,7 +66,7 @@ class MazeDrone:
             'reached': rewards_env['reached'],
             'standard': rewards_env['standard']
         }
-        #print('Drone rewards:', self._rewards)
+        
 
 
         self._stateAction_history = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
@@ -78,7 +86,14 @@ class MazeDrone:
 
         # Concatena com distância para o target
         r, theta = self._get_polar_distance()
-        observation = walls + [r, theta] + self._stateAction_history
+        if self._hist_env == 1:
+            observation = walls + [r]
+        elif self._hist_env == 2:
+            observation = walls + [r, theta]
+        else:
+            observation = walls + [r, theta] + self._stateAction_history
+
+
         
 
         # Info for human mode
@@ -144,7 +159,7 @@ class MazeDrone:
             return self._rewards['destroyed']
 
         # If the drone is stuck in a position (flickering)
-        if self._check_if_stuck():
+        if self._check_if_stuck() and self._hist_env != 1:
             return self._rewards['stuck']
         
         # If the drone reached the target
@@ -262,7 +277,10 @@ class MazeDrone:
         _ = self._history.popleft()
         self._history.append( (self._drone[0], self._drone[1]) )
         
-        if self._history[0] == self._history[2] and self._history[1] == self._history[3]:
+        # A segunda verificação (após o and fora dos parenteses) evita penalizar o agente por 
+        # sair de uma condição em que ele colide contra a parede sucessivamente sem sair do
+        # lugar. 
+        if (self._history[0] == self._history[2] and self._history[1] == self._history[3]) and (self._history[0] != self._history[3]):
             return True
         return False    
 
