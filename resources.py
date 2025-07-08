@@ -42,7 +42,7 @@ def dense_layer(num_units):
         activation=tf.keras.activations.relu)
 
 
-def build_agent(fc_layer_params, env, learning_rate, train_env, hist_env):
+def build_agent(fc_layer_params, env, learning_rate, train_env, hist_env, epsilon_g=-1, gamma=-1):
 
     action_tensor_spec = tensor_spec.from_spec(env.action_spec())
     num_actions = action_tensor_spec.maximum - action_tensor_spec.minimum + 1
@@ -69,7 +69,8 @@ def build_agent(fc_layer_params, env, learning_rate, train_env, hist_env):
         train_env.action_spec(),    
         q_network=q_net,
         optimizer=optimizer,
-        epsilon_greedy=0.5,
+        epsilon_greedy = 0.5 if epsilon_g == -1 else epsilon_g,
+        gamma = 1 if gamma == -1 else gamma,
         td_errors_loss_fn=common.element_wise_squared_loss,
         train_step_counter=train_step_counter)
     return agent 
@@ -352,7 +353,7 @@ class TrainingSession:
     def train(self, without_wall_training=True, early_stop=False, verbose=False):
 
         # EARLY STOP
-        early_stop_steps = 500
+        early_stop_steps = 100
 
         # ENVIRONMENT
         train_py_env = suite_gym.load(self._env_name)
@@ -518,6 +519,27 @@ class TrainingSession:
                             early_stop_counter = 0
                             if verbose: print("Early stop reseted at", step)
 
+                    if early_stop == "finished":
+                        if eval_finished_percentage == 1.0 and eval_crash_counter == 0: 
+                            early_stop_counter += 1
+                        else: 
+                            early_stop_counter = 0
+                            if verbose: print("Early stop reseted at", step)
+
+                    if early_stop == "finished2":
+                        if eval_finished_percentage == 1.0 and eval_crash_counter == 0 and eval_stuck_counter == 0: 
+                            early_stop_counter += 1
+                        else: 
+                            early_stop_counter = 0
+                            if verbose: print("Early stop reseted at", step)
+
+                    if early_stop == "finished3":
+                        if eval_finished_percentage == 1.0 and eval_crash_counter == 0 and eval_stuck_counter == 0: 
+                            early_stop_counter += 1
+                        else: 
+                            early_stop_counter = 0
+                            if verbose: print("Early stop reseted at", step)
+
                     if early_stop == "stuckANDcrash":
                         if eval_crash_counter == 0 and eval_stuck_counter == 0:
                             early_stop_counter += 1
@@ -539,22 +561,35 @@ class TrainingSession:
                         print("Stuck counter:", eval_stuck_counter)
                         print("==========================================================================\n")
                         
+                    # Se early stop estiver ativado, faz um big check com 100 episódios para conferir a rubustez dos resultados
                     if (early_stop_counter * self._eval_interval) % early_stop_steps == 0 and early_stop_counter:
                         eval_avg_return, eval_finished_percentage, eval_crash_counter, eval_stuck_counter, eval_steps = compute_logs(eval_env, self._agent.policy, self._rewards, 100, False, self._hist_env)
-                        print("\n=============================================================( EARLY STOP )")
-                        print("Big check log:")
-                        print("Avg return:", eval_avg_return)
-                        print("Finished:", eval_finished_percentage)
-                        print("Crash Counter:", eval_crash_counter)
-                        print("Stuck counter:", eval_stuck_counter)
-                        print("Early stop at", step)
-                        print("==========================================================================\n")
+                        if early_stop != "finished2" and early_stop != "finished":
+                            print("\n=============================================================( EARLY STOP )")
+                            print("Big check log:")
+                            print("Avg return:", eval_avg_return)
+                            print("Finished:", eval_finished_percentage)
+                            print("Crash Counter:", eval_crash_counter)
+                            print("Stuck counter:", eval_stuck_counter)
+                            print("Early stop at", step)
+                            print("==========================================================================\n")
                         if eval_crash_counter == 0 and eval_stuck_counter == 0 and early_stop == "stuckANDcrash":
+                            break
+                        elif early_stop == "finished" and eval_finished_percentage >= 0.9:
+                            break
+                        elif early_stop == "finished2" and eval_finished_percentage >= 0.9 and eval_crash_counter <= 15 and eval_stuck_counter <= 15:
+                            break
+                        elif early_stop == "finished3" and eval_finished_percentage >= 0.95 and eval_crash_counter <= 15 and eval_stuck_counter <= 15:
                             break
                         elif early_stop == "crash" or early_stop == "stuck":
                             break
                         else: 
                             early_stop_counter -= 1
+
+                        # finished_1: %f == 1.0
+                        # finished_2: %f >= 0.9
+                        # finished_3: %f >= 0.9 && cc <= 15 && sc <= 15 (LR = 1e-4)
+                
 
                 if verbose: print('  Average Return = {0:.2f}'.format(eval_avg_return))
                 
@@ -567,6 +602,17 @@ class TrainingSession:
                 crash_counter_log.append(current_value)
                 if verbose: print('  Crash = {0}'.format(current_value - crash_counter_aux))
                 crash_counter_aux = current_value
+
+        #if (early_stop == "finished" or early_stop == "finished2" or early_stop == "finished3") and eval_finished_percentage >= 0.9:
+        if (early_stop == "finished2") and eval_finished_percentage >= 0.9:
+            print("\n=============================================================( EARLY STOP )")
+            print("Big check log:")
+            print("Avg return:", eval_avg_return)
+            print("Finished:", eval_finished_percentage)
+            print("Crash Counter:", eval_crash_counter)
+            print("Stuck counter:", eval_stuck_counter)
+            print("Early stop at", step)
+            print("==========================================================================\n")
         
         #wall_log = [compute_logs(wall_env, self._agent.policy, self._rewards, self._num_eval_episodes)]
         wall_log = 1

@@ -138,11 +138,11 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
     
 
     def set_mode(self, mode):
-        print(f"Mode set: {mode}")
+        #print(f"Mode set: {mode}")
         self._mode = mode
 
     def set_size(self, size):
-        print(f"Maze site set: {size}x{size}")
+        #print(f"Maze site set: {size}x{size}")
         self._maze_size = size
 
     def set_hist_env(self, hist_env):
@@ -177,7 +177,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                             dtype=np.float32)
 
         self._hist_env = hist_env
-        print("Historical Environment updated: ", hist_env)
+        #print("Historical Environment updated: ", hist_env)
         self.observation_space = spaces.Box(low=low, high=high)
         
 
@@ -186,7 +186,7 @@ class MazeEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self._rewards['stuck'] = stuck
         self._rewards['reached'] = reached
         self._rewards['standard'] = standard
-        print('Rewards Updated:', self._rewards)
+        #print('Rewards Updated:', self._rewards)
 
     def print_rewards(self):
         print('Rewards:', self._rewards)

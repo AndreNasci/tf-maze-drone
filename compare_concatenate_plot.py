@@ -69,7 +69,8 @@ def main():
     
         #read_file = pd.read_csv(f"logs/02-stuck-improving/Average/{file_num[i-1]}_comb-{comb[i-1]}-avg.csv")
         #read_file = pd.read_csv(f"logs/02-stuck-improving/{file_num[i-1]}_comb-{comb[i-1]}.csv")
-        read_file = pd.read_csv(f"logs/04-stateChange/{file_num[i-1]}_comb-{comb[i-1]}-run-1.csv")
+        #read_file = pd.read_csv(f"logs/04-stateChange/{file_num[i-1]}_comb-{comb[i-1]}-run-1.csv")
+        read_file = pd.read_csv(f"logs/06-hist-env/{file_num[i-1]}-checkpoint_0-run_1.csv")
         
         
         df = pd.DataFrame(read_file)

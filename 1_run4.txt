@@ -1,0 +1,47 @@
+Combination: 1
+Gamma: 2
+Epsilon: 2
+Buffer: 0
+LR: 0
+
+========================================================================== Training PHASE 1:
+Rewards: {'destroyed': -10.0, 'stuck': -6.0, 'reached': 10.0, 'standard': -1.0}
+Size: 3
+Mode: 1
+Hist env: 3
+step = 1000
+step = 2000
+learning_rate inside: <tf.Variable 'learning_rate:0' shape=() dtype=float32, numpy=0.001>
+
+========================================================================== Training PHASE 2:
+Rewards: {'destroyed': -10.0, 'stuck': -6.0, 'reached': 10.0, 'standard': -1.0}
+Size: 3
+Mode: 0
+Hist env: 3
+step = 3000
+step = 4000
+step = 5000
+step = 6000
+step = 7000
+learning_rate inside: <tf.Variable 'learning_rate:0' shape=() dtype=float32, numpy=0.001>
+
+========================================================================== Training PHASE 3:
+Rewards: {'destroyed': -10.0, 'stuck': -11.0, 'reached': 10.0, 'standard': -1.0}
+Size: 3
+Mode: 0
+Hist env: 3
+step = 8000
+
+=============================================================( EARLY STOP )
+Big check log:
+Avg return: 2.08
+Finished: 0.92
+Crash Counter: 1
+Stuck counter: 7
+Early stop at 8000
+==========================================================================
+
+learning_rate inside: <tf.Variable 'learning_rate:0' shape=() dtype=float32, numpy=1e-04>
+Fase 1 terminada em 2100
+Fase 2 terminada em 7900
+
