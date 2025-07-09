@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Combination | Gamma | Epsilon | Buffer
+# Combination | Gamma | Epsilon | Buffer | Index
 
 ./maze-drone-v03/bin/python 019_grid_search_3_3fases_reprod.py 1 2 2 0 01 > 1_run1.txt
 ./maze-drone-v03/bin/python 019_grid_search_3_3fases_reprod.py 1 2 2 0 02 > 1_run2.txt
