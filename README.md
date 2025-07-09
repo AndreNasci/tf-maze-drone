@@ -1,4 +1,4 @@
-# MazeDrone Project with TF-Agents
+# Embedded Artificial Intelligence Simulation Environment for Indoor Navigation Assistance
 
 ![Static Badge](https://img.shields.io/badge/Project_Status:-Ongoing_(01/Jul/2025)-orange)
 
